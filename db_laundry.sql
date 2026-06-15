@@ -70,11 +70,11 @@ CREATE TABLE IF NOT EXISTS `transaksi` (
 -- 1. Insert Akun Users (1 Admin, 5 Pelanggan)
 INSERT INTO `users` (`id_user`, `username`, `password`, `role`) VALUES
 (1, 'admin', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'admin'),
-(2, 'budi', '$2y$10$BWeq5AYSKM/Sup8206iNSOXBeMpNmfxLxyrG1e28Z0/io/o71WbsW', 'user'),
-(3, 'siti', '$2y$10$BWeq5AYSKM/Sup8206iNSOXBeMpNmfxLxyrG1e28Z0/io/o71WbsW', 'user'),
-(4, 'andi', '$2y$10$BWeq5AYSKM/Sup8206iNSOXBeMpNmfxLxyrG1e28Z0/io/o71WbsW', 'user'),
-(5, 'dewi', '$2y$10$BWeq5AYSKM/Sup8206iNSOXBeMpNmfxLxyrG1e28Z0/io/o71WbsW', 'user'),
-(6, 'roni', '$2y$10$BWeq5AYSKM/Sup8206iNSOXBeMpNmfxLxyrG1e28Z0/io/o71WbsW', 'user');
+(2, 'budi', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'user'),
+(3, 'siti', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'user'),
+(4, 'andi', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'user'),
+(5, 'dewi', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'user'),
+(6, 'roni', '$2y$10$lVXSEAOH.ZAlHv52g4Ru6e3NIOjjSWOxmloxxRSjI.2zZTtqjSfDC', 'user');
 
 -- 2. Insert Data Pelanggan
 INSERT INTO `pelanggan` (`id_pelanggan`, `id_user`, `nama`, `no_hp`, `alamat`) VALUES
