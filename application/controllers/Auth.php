@@ -40,12 +40,19 @@ class Auth extends CI_Controller {
      */
     public function proses_login()
     {
-        $this->form_validation->set_rules('username', 'Username', 'required|trim');
-        $this->form_validation->set_rules('password', 'Password', 'required');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|alpha_numeric|min_length[4]|max_length[50]', [
+            'alpha_numeric' => 'Username hanya boleh huruf dan angka.',
+            'min_length' => 'Username minimal 4 karakter.',
+            'max_length' => 'Username maksimal 50 karakter.'
+        ]);
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[4]|max_length[255]', [
+            'min_length' => 'Password minimal 4 karakter.',
+            'max_length' => 'Password maksimal 255 karakter.'
+        ]);
 
         if ($this->form_validation->run() === FALSE) {
-            $this->session->set_flashdata('error', 'Username dan password wajib diisi.');
-            redirect('login');
+            $data['title'] = 'Masuk Ke Sistem — LaundryKu';
+            $this->load->view('auth/login', $data);
             return;
         }
 
@@ -93,15 +100,19 @@ class Auth extends CI_Controller {
     public function proses_register()
     {
         // Validasi input form
-        $this->form_validation->set_rules('username',      'Username',           'required|trim|min_length[4]|is_unique[users.username]', [
+        $this->form_validation->set_rules('username',      'Username',           'required|trim|alpha_numeric|min_length[4]|max_length[50]|is_unique[users.username]', [
             'is_unique' => 'Username ini sudah terdaftar.'
         ]);
-        $this->form_validation->set_rules('password',      'Password',           'required|min_length[4]');
+        $this->form_validation->set_rules('password',      'Password',           'required|min_length[4]|max_length[255]');
         $this->form_validation->set_rules('konf_password', 'Konfirmasi Password', 'required|matches[password]', [
             'matches' => 'Konfirmasi password tidak cocok.'
         ]);
         $this->form_validation->set_rules('nama',          'Nama Lengkap',       'required|trim|max_length[100]');
-        $this->form_validation->set_rules('no_hp',         'Nomor HP',           'required|trim|max_length[20]');
+        $this->form_validation->set_rules('no_hp',         'Nomor HP',           'required|trim|numeric|min_length[8]|max_length[15]', [
+            'numeric' => 'Nomor HP harus berupa angka.',
+            'min_length' => 'Nomor HP minimal 8 angka.',
+            'max_length' => 'Nomor HP maksimal 15 angka.'
+        ]);
         $this->form_validation->set_rules('alamat',        'Alamat Lengkap',     'required|trim');
 
         if ($this->form_validation->run() === FALSE) {

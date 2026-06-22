@@ -28,7 +28,7 @@ class Pelanggan extends CI_Controller {
     /**
      * Tampilkan daftar semua pelanggan dengan paginasi.
      */
-    public function index()
+    public function index($page = 0)
     {
         $data['title']  = 'Manajemen Pelanggan — LaundryKu';
         $data['active'] = 'pelanggan';
@@ -53,7 +53,8 @@ class Pelanggan extends CI_Controller {
 
         $this->pagination->initialize($config);
 
-        $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+        // Cari page offset dari parameter atau fallback ke segment 3
+        $page = ($page) ? intval($page) : (($this->uri->segment(3)) ? intval($this->uri->segment(3)) : 0);
         $data['pelanggan'] = $this->Pelanggan_model->get_paginated($config['per_page'], $page);
         $data['pagination_links'] = $this->pagination->create_links();
         $data['offset'] = $page;
@@ -94,7 +95,11 @@ class Pelanggan extends CI_Controller {
     {
         $this->form_validation->set_rules('id_user', 'User',    'required|is_natural_no_zero');
         $this->form_validation->set_rules('nama',    'Nama',    'required|trim|max_length[100]');
-        $this->form_validation->set_rules('no_hp',   'No HP',   'required|trim|max_length[20]');
+        $this->form_validation->set_rules('no_hp',   'No HP',   'required|trim|numeric|min_length[8]|max_length[15]', [
+            'numeric' => 'Nomor HP harus berupa angka.',
+            'min_length' => 'Nomor HP minimal 8 angka.',
+            'max_length' => 'Nomor HP maksimal 15 angka.'
+        ]);
         $this->form_validation->set_rules('alamat',  'Alamat',  'required|trim');
 
         if ($this->form_validation->run() === FALSE) {
@@ -159,7 +164,11 @@ class Pelanggan extends CI_Controller {
     {
         $this->form_validation->set_rules('id_user', 'User',    'required|is_natural_no_zero');
         $this->form_validation->set_rules('nama',    'Nama',    'required|trim|max_length[100]');
-        $this->form_validation->set_rules('no_hp',   'No HP',   'required|trim|max_length[20]');
+        $this->form_validation->set_rules('no_hp',   'No HP',   'required|trim|numeric|min_length[8]|max_length[15]', [
+            'numeric' => 'Nomor HP harus berupa angka.',
+            'min_length' => 'Nomor HP minimal 8 angka.',
+            'max_length' => 'Nomor HP maksimal 15 angka.'
+        ]);
         $this->form_validation->set_rules('alamat',  'Alamat',  'required|trim');
 
         if ($this->form_validation->run() === FALSE) {

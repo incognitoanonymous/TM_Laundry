@@ -76,7 +76,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         placeholder="Contoh: 081234567890"
                         value="<?= set_value('no_hp') ?>"
                         required 
-                        maxlength="20">
+                        maxlength="15">
                     <?php if (form_error('no_hp')): ?>
                         <span class="error-msg"><?= form_error('no_hp') ?></span>
                     <?php endif; ?>

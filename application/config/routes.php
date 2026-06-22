@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 // Default landing page diarahkan ke form masuk (Auth login)
-$route['default_controller']   = 'auth/login';
+$route['default_controller']   = 'status/index';
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;
 
@@ -26,7 +26,7 @@ $route['admin/dashboard']       = 'admin/dashboard';
 
 // ── RUTE ADMIN: CRUD USER ────────────────────────────────────────────────
 $route['admin/user']               = 'user/index';
-$route['admin/user/(:num)']        = 'user/index';
+$route['admin/user/(:num)']        = 'user/index/$1';
 $route['admin/user/tambah']        = 'user/tambah';
 $route['admin/user/simpan']        = 'user/simpan';
 $route['admin/user/edit/(:num)']   = 'user/edit/$1';
@@ -35,7 +35,7 @@ $route['admin/user/hapus/(:num)']  = 'user/hapus/$1';
 
 // ── RUTE ADMIN: CRUD PELANGGAN ───────────────────────────────────────────
 $route['admin/pelanggan']               = 'pelanggan/index';
-$route['admin/pelanggan/(:num)']        = 'pelanggan/index';
+$route['admin/pelanggan/(:num)']        = 'pelanggan/index/$1';
 $route['admin/pelanggan/tambah']        = 'pelanggan/tambah';
 $route['admin/pelanggan/simpan']        = 'pelanggan/simpan';
 $route['admin/pelanggan/edit/(:num)']   = 'pelanggan/edit/$1';
@@ -44,7 +44,7 @@ $route['admin/pelanggan/hapus/(:num)']  = 'pelanggan/hapus/$1';
 
 // ── RUTE ADMIN: CRUD TRANSAKSI ───────────────────────────────────────────
 $route['admin/transaksi']               = 'transaksi/index';
-$route['admin/transaksi/(:num)']        = 'transaksi/index';
+$route['admin/transaksi/(:num)']        = 'transaksi/index/$1';
 $route['admin/transaksi/tambah']        = 'transaksi/tambah';
 $route['admin/transaksi/simpan']        = 'transaksi/simpan';
 $route['admin/transaksi/edit/(:num)']   = 'transaksi/edit/$1';
@@ -61,6 +61,8 @@ $route['user/riwayat']          = 'user/riwayat';
 $route['user/profil']           = 'user/profil';
 $route['user/profil/update']    = 'user/update_profil';
 $route['user/detail/(:num)']    = 'user/detail/$1';
+$route['user/pesan']            = 'user/pesan';
+$route['user/pesan/proses']     = 'user/proses_pesan';
 
 // ── RUTE CEK STATUS TANPA LOGIN (PUBLIK) ─────────────────────────────────
 $route['cek-status']            = 'status/index';

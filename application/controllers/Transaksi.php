@@ -29,7 +29,7 @@ class Transaksi extends CI_Controller {
     /**
      * Tampilkan data transaksi laundry dengan fitur pencarian, filter, dan paginasi.
      */
-    public function index()
+    public function index($page = 0)
     {
         $data['title']  = 'Manajemen Transaksi — LaundryKu';
         $data['active'] = 'transaksi';
@@ -80,7 +80,8 @@ class Transaksi extends CI_Controller {
 
         $this->pagination->initialize($config);
 
-        $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+        // Cari page offset dari parameter atau fallback ke segment 3
+        $page = ($page) ? intval($page) : (($this->uri->segment(3)) ? intval($this->uri->segment(3)) : 0);
         
         $data['transaksi'] = $this->Transaksi_model->get_paginated($config['per_page'], $page, $keyword, $status, $tanggal, $id_pelanggan);
         $data['pagination_links'] = $this->pagination->create_links();

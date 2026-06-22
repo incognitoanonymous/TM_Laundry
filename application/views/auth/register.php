@@ -131,6 +131,7 @@ label { font-size: .8rem; font-weight: 600; color: var(--gray-700); }
                             class="form-control"
                             placeholder="Nama sesuai KTP"
                             value="<?= set_value('nama') ?>"
+                            maxlength="100"
                             required>
                         <?php if (form_error('nama')): ?>
                             <span class="error-msg"><?= form_error('nama') ?></span>
@@ -174,6 +175,7 @@ label { font-size: .8rem; font-weight: 600; color: var(--gray-700); }
                             class="form-control"
                             placeholder="Contoh: 0812XXXXXXXX"
                             value="<?= set_value('no_hp') ?>"
+                            maxlength="15"
                             required>
                         <?php if (form_error('no_hp')): ?>
                             <span class="error-msg"><?= form_error('no_hp') ?></span>

@@ -63,7 +63,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             class="form-control" 
                             value="<?= set_value('no_hp', $pelanggan['no_hp']) ?>" 
                             required 
-                            maxlength="20">
+                            maxlength="15">
                         <?php if (form_error('no_hp')): ?>
                             <span class="error-msg"><?= form_error('no_hp') ?></span>
                         <?php endif; ?>

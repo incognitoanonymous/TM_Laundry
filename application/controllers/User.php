@@ -27,7 +27,7 @@ class User extends CI_Controller {
     /**
      * Tampilkan daftar seluruh user dengan paginasi.
      */
-    public function index()
+    public function index($page = 0)
     {
         // Proteksi admin
         is_admin();
@@ -55,7 +55,8 @@ class User extends CI_Controller {
 
         $this->pagination->initialize($config);
 
-        $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+        // Cari page offset dari parameter atau fallback ke segment 3
+        $page = ($page) ? intval($page) : (($this->uri->segment(3)) ? intval($this->uri->segment(3)) : 0);
         $data['users'] = $this->User_model->get_paginated($config['per_page'], $page);
         $data['pagination_links'] = $this->pagination->create_links();
         $data['offset'] = $page;
@@ -92,51 +93,25 @@ class User extends CI_Controller {
     {
         is_admin();
 
-        $this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[4]|is_unique[users.username]');
-        $this->form_validation->set_rules('password', 'Password', 'required|min_length[4]');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|alpha_numeric|min_length[4]|max_length[50]|is_unique[users.username]');
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[4]|max_length[255]');
         $this->form_validation->set_rules('role',     'Role',     'required|in_list[admin,user]');
-
-        $role = $this->input->post('role', TRUE);
-
-        if ($role === 'user') {
-            $this->form_validation->set_rules('nama',   'Nama Lengkap',   'required|trim|max_length[100]');
-            $this->form_validation->set_rules('no_hp',  'Nomor HP',       'required|trim|max_length[20]');
-            $this->form_validation->set_rules('alamat', 'Alamat Lengkap', 'required|trim');
-        }
 
         if ($this->form_validation->run() === FALSE) {
             $this->tambah();
             return;
         }
 
-        // Jalankan Database Transaction untuk menjaga integritas data relasional
-        $this->db->trans_start();
-
-        $user_insert = [
+        $insert = [
             'username' => $this->input->post('username', TRUE),
             'password' => password_hash($this->input->post('password'), PASSWORD_BCRYPT),
-            'role'     => $role,
+            'role'     => $this->input->post('role', TRUE),
         ];
 
-        $this->User_model->insert($user_insert);
-        $id_user = $this->db->insert_id();
-
-        if ($role === 'user') {
-            $pelanggan_insert = [
-                'id_user' => $id_user,
-                'nama'    => $this->input->post('nama', TRUE),
-                'no_hp'   => $this->input->post('no_hp', TRUE),
-                'alamat'  => $this->input->post('alamat', TRUE),
-            ];
-            $this->Pelanggan_model->insert($pelanggan_insert);
-        }
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            $this->session->set_flashdata('error', 'Gagal menambahkan user baru.');
+        if ($this->User_model->insert($insert)) {
+            $this->session->set_flashdata('success', 'User berhasil ditambahkan.');
         } else {
-            $this->session->set_flashdata('success', 'User ' . ($role === 'user' ? 'dan data Pelanggan ' : '') . 'berhasil ditambahkan.');
+            $this->session->set_flashdata('error', 'Gagal menambahkan user.');
         }
 
         redirect('admin/user');
@@ -187,11 +162,11 @@ class User extends CI_Controller {
             $is_unique = '|is_unique[users.username]';
         }
 
-        $this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[4]' . $is_unique);
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|alpha_numeric|min_length[4]|max_length[50]' . $is_unique);
         $this->form_validation->set_rules('role',     'Role',     'required|in_list[admin,user]');
 
         if (!empty($this->input->post('password'))) {
-            $this->form_validation->set_rules('password', 'Password', 'min_length[4]');
+            $this->form_validation->set_rules('password', 'Password', 'min_length[4]|max_length[255]');
         }
 
         if ($this->form_validation->run() === FALSE) {
@@ -393,12 +368,16 @@ class User extends CI_Controller {
 
         // Aturan validasi
         $this->form_validation->set_rules('nama',   'Nama Lengkap',   'required|trim|max_length[100]');
-        $this->form_validation->set_rules('no_hp',  'Nomor HP',       'required|trim|max_length[20]');
+        $this->form_validation->set_rules('no_hp',  'Nomor HP',       'required|trim|numeric|min_length[8]|max_length[15]', [
+            'numeric' => 'Nomor HP harus berupa angka.',
+            'min_length' => 'Nomor HP minimal 8 angka.',
+            'max_length' => 'Nomor HP maksimal 15 angka.'
+        ]);
         $this->form_validation->set_rules('alamat', 'Alamat Lengkap', 'required|trim');
 
         // Jika password diisi
         if (!empty($this->input->post('password'))) {
-            $this->form_validation->set_rules('password',      'Password Baru',           'min_length[4]');
+            $this->form_validation->set_rules('password',      'Password Baru',           'min_length[4]|max_length[255]');
             $this->form_validation->set_rules('konf_password', 'Konfirmasi Password Baru', 'matches[password]');
         }
 
@@ -428,7 +407,7 @@ class User extends CI_Controller {
     }
 
     /**
-     * Tampilkan halaman formulir pemesanan laundry mandiri (User).
+     * Tampilkan form pemesanan laundry untuk pelanggan.
      */
     public function pesan()
     {
@@ -437,13 +416,14 @@ class User extends CI_Controller {
         $id_user = $this->session->userdata('id_user');
         $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
 
-        if (!$pelanggan) {
-            $this->session->set_flashdata('error', 'Profil pelanggan Anda belum lengkap. Silakan hubungi admin atau lengkapi profil.');
-            redirect('user/dashboard');
+        // Proteksi jika profil pelanggan kosong
+        if (!$pelanggan || empty($pelanggan['nama']) || empty($pelanggan['no_hp']) || empty($pelanggan['alamat'])) {
+            $this->session->set_flashdata('error', 'Silakan lengkapi Profil Anda (Nama, No HP, Alamat) terlebih dahulu sebelum membuat pesanan.');
+            redirect('user/profil');
             return;
         }
 
-        $data['title']     = 'Pesan Laundry Mandiri — LaundryKu';
+        $data['title']     = 'Pesan Laundry Baru — LaundryKu';
         $data['active']    = 'pesan';
         $data['pelanggan'] = $pelanggan;
 
@@ -455,7 +435,7 @@ class User extends CI_Controller {
     }
 
     /**
-     * Proses simpan pesanan laundry mandiri (User).
+     * Memproses pesanan laundry baru pelanggan.
      */
     public function proses_pesan()
     {
@@ -464,15 +444,15 @@ class User extends CI_Controller {
         $id_user = $this->session->userdata('id_user');
         $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
 
-        if (!$pelanggan) {
-            $this->session->set_flashdata('error', 'Profil pelanggan Anda tidak ditemukan.');
-            redirect('user/dashboard');
+        if (!$pelanggan || empty($pelanggan['nama']) || empty($pelanggan['no_hp']) || empty($pelanggan['alamat'])) {
+            $this->session->set_flashdata('error', 'Profil tidak lengkap.');
+            redirect('user/profil');
             return;
         }
 
-        $this->form_validation->set_rules('jenis_layanan', 'Jenis Layanan', 'required|trim|in_list[Cuci Reguler,Cuci Express,Cuci + Setrika]');
-        $this->form_validation->set_rules('berat',         'Berat',         'required|numeric|greater_than[0]');
-        $this->form_validation->set_rules('tanggal',       'Tanggal',        'required');
+        $this->form_validation->set_rules('jenis_layanan', 'Jenis Layanan',  'required|trim|in_list[Cuci Reguler,Cuci Express,Cuci + Setrika]');
+        $this->form_validation->set_rules('berat',         'Estimasi Berat (kg)', 'required|numeric|greater_than[0]');
+        $this->form_validation->set_rules('tanggal',       'Tanggal Pengantaran', 'required');
 
         if ($this->form_validation->run() === FALSE) {
             $this->pesan();
@@ -481,17 +461,20 @@ class User extends CI_Controller {
 
         $jenis_layanan = $this->input->post('jenis_layanan', TRUE);
         $berat         = floatval($this->input->post('berat', TRUE));
-
-        // Kalkulasi tarif otomatis
+        
+        // Tarif Resmi
         $tarif = 0;
-        if ($jenis_layanan === 'Cuci Reguler') {
-            $tarif = 7000;
-        } elseif ($jenis_layanan === 'Cuci Express') {
-            $tarif = 10000;
-        } elseif ($jenis_layanan === 'Cuci + Setrika') {
-            $tarif = 12000;
+        switch ($jenis_layanan) {
+            case 'Cuci Reguler':
+                $tarif = 7000;
+                break;
+            case 'Cuci Express':
+                $tarif = 10000;
+                break;
+            case 'Cuci + Setrika':
+                $tarif = 12000;
+                break;
         }
-
         $harga = $berat * $tarif;
 
         $insert = [
@@ -505,11 +488,11 @@ class User extends CI_Controller {
         ];
 
         if ($this->Transaksi_model->insert($insert)) {
-            $this->session->set_flashdata('success', 'Pesanan laundry #' . $insert['kode_transaksi'] . ' berhasil dikirim.');
+            $this->session->set_flashdata('success', 'Pesanan laundry #' . $insert['kode_transaksi'] . ' berhasil dibuat! Silakan serahkan pakaian Anda ke outlet.');
+            redirect('user/riwayat');
         } else {
-            $this->session->set_flashdata('error', 'Gagal mengirimkan pesanan laundry.');
+            $this->session->set_flashdata('error', 'Gagal memproses pesanan laundry.');
+            $this->pesan();
         }
-
-        redirect('user/riwayat');
     }
 }

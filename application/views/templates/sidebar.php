@@ -42,7 +42,7 @@ $active   = $active ?? '';
                 <span class="nav-icon">🏠</span> Dashboard
             </a>
             <a href="<?= base_url('user/pesan') ?>" class="<?= $active === 'pesan' ? 'active' : '' ?>" id="nav-pesan">
-                <span class="nav-icon">🧺</span> Pesan Laundry
+                <span class="nav-icon">🛒</span> Pesan Laundry
             </a>
             <a href="<?= base_url('user/riwayat') ?>" class="<?= $active === 'riwayat' ? 'active' : '' ?>" id="nav-riwayat">
                 <span class="nav-icon">📋</span> Riwayat Laundry

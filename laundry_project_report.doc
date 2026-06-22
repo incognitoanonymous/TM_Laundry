@@ -1,0 +1,276 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset="utf-8">
+    <title>Laporan Project LaundryKu</title>
+    <!-- Style khusus agar Word menampilkan formatting dengan rapi -->
+    <style>
+        @page Section1 {
+            size: 8.27in 11.69in; /* Ukuran A4 */
+            margin: 1.0in 1.0in 1.0in 1.0in; /* Margin standard Word */
+            mso-header-margin: .5in;
+            mso-footer-margin: .5in;
+            mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        
+        body {
+            font-family: 'Arial', 'Calibri', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #333333;
+        }
+        
+        h1 {
+            font-size: 20pt;
+            color: #1e3a8a;
+            margin-top: 18pt;
+            margin-bottom: 6pt;
+            font-weight: bold;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 6px;
+        }
+        
+        h2 {
+            font-size: 14pt;
+            color: #2563eb;
+            margin-top: 16pt;
+            margin-bottom: 6pt;
+            font-weight: bold;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+        }
+        
+        h3 {
+            font-size: 12pt;
+            color: #1f2937;
+            margin-top: 12pt;
+            margin-bottom: 4pt;
+            font-weight: bold;
+        }
+        
+        p {
+            margin-top: 0;
+            margin-bottom: 8pt;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-top: 0;
+            margin-bottom: 8pt;
+            padding-left: 20pt;
+        }
+        
+        li {
+            margin-bottom: 3pt;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10pt;
+            margin-bottom: 10pt;
+        }
+        
+        th {
+            background-color: #f3f4f6;
+            color: #111827;
+            font-weight: bold;
+            border: 1px solid #d1d5db;
+            padding: 8pt;
+            text-align: left;
+            font-size: 10pt;
+        }
+        
+        td {
+            border: 1px solid #e5e7eb;
+            padding: 8pt;
+            font-size: 10pt;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #f9fafb;
+        }
+        
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 4px;
+            font-size: 9.5pt;
+            border-radius: 4px;
+        }
+        
+        blockquote {
+            margin: 10pt 0;
+            padding: 10pt 15pt;
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            color: #1e40af;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .badge {
+            background-color: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="Section1">
+
+    <div class="text-center" style="margin-bottom: 30pt; margin-top: 20pt;">
+        <span style="font-size: 36pt;">🧺</span>
+        <h1 style="border-bottom: none; margin-bottom: 5pt; font-size: 26pt; color: #1e3a8a;">LAPORAN DOKUMENTASI PROJECT</h1>
+        <h2 style="border-bottom: none; margin-top: 0; font-size: 18pt; color: #4b5563; font-weight: normal;">Sistem Informasi Manajemen Laundry Berbasis Web (LaundryKu)</h2>
+        <p style="text-align: center; color: #9ca3af; font-size: 10pt; margin-top: 15pt;">Dibuat otomatis menggunakan PHP + CodeIgniter 3 + MySQL</p>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #d1d5db; margin-bottom: 25pt;">
+
+    <h2>1. Deskripsi Project &amp; Spesifikasi Teknologi</h2>
+    <p>
+        <strong>LaundryKu</strong> adalah sebuah aplikasi web manajemen laundry profesional yang dirancang menggunakan arsitektur <strong>MVC (Model-View-Controller)</strong> murni bawaan <strong>CodeIgniter 3</strong>. Aplikasi ini ditujukan untuk mempermudah operasional usaha laundry, mulai dari pengelolaan akun pengguna, registrasi pelanggan, input transaksi dengan kalkulasi tarif otomatis, pemantauan status cucian (6 tahapan), rekapitulasi laporan pendapatan keuangan, hingga pelacakan status cucian secara instan oleh pelanggan tanpa harus masuk ke sistem.
+    </p>
+    <p>
+        Aplikasi ini dikembangkan sepenuhnya menggunakan teknologi native tanpa framework CSS/JS eksternal untuk menjamin performa ringan, bersih, dan kemudahan pemeliharaan:
+    </p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Komponen Stack</th>
+                <th>Teknologi yang Digunakan</th>
+                <th>Keterangan Fungsi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Backend Engine</strong></td>
+                <td>PHP 7.4+ s.d PHP 8.2+</td>
+                <td>Pemrosesan data di sisi server</td>
+            </tr>
+            <tr>
+                <td><strong>Backend Framework</strong></td>
+                <td>CodeIgniter 3.1.13</td>
+                <td>Struktur pola kode berbasis MVC murni</td>
+            </tr>
+            <tr>
+                <td><strong>Database Server</strong></td>
+                <td>MySQL / MariaDB</td>
+                <td>Penyimpanan data relasional terstruktur</td>
+            </tr>
+            <tr>
+                <td><strong>Desain Antarmuka</strong></td>
+                <td>HTML5 + Vanilla CSS3</td>
+                <td>Tampilan responsive, clean, dan mandiri</td>
+            </tr>
+            <tr>
+                <td><strong>Interaksi Klien</strong></td>
+                <td>Native Javascript (ES6)</td>
+                <td>Penghitungan estimasi harga dan animasi dinamis</td>
+            </tr>
+            <tr>
+                <td><strong>Keamanan Validasi</strong></td>
+                <td>CI3 Form Validation + CSRF Token</td>
+                <td>Pencegahan eksploitasi form ilegal</td>
+            </tr>
+            <tr>
+                <td><strong>Keamanan Akses</strong></td>
+                <td>Session + Role Check Helper</td>
+                <td>Pembatasan halaman admin &amp; pelanggan</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. Fitur-Fitur Utama yang Diimplementasikan</h2>
+    
+    <h3>A. Fitur Keamanan dan Autentikasi (Multi-Role)</h3>
+    <ul>
+        <li><strong>Login Multi-Role:</strong> Membatasi akses masuk secara otomatis berdasarkan hak akses akun (Admin atau Pelanggan).</li>
+        <li><strong>Registrasi Mandiri Calon Pelanggan:</strong> Calon pelanggan baru dapat membuat akun sendiri secara instan. Sistem otomatis memetakan data akun login (users) dan profil pelanggan (pelanggan) secara aman dalam satu waktu (Database Transaction).</li>
+        <li><strong>Role-Based Access Control (RBAC):</strong> Penggunaan helper autentikasi kustom (auth_helper) untuk menyaring akses URL sensitif secara global. Percobaan bypass URL admin oleh pelanggan otomatis diarahkan kembali ke dashboard pelanggan.</li>
+        <li><strong>Bcrypt Password Hashing:</strong> Kata sandi di-hash menggunakan algoritma Bcrypt yang aman via password_hash() dan diverifikasi dengan password_verify().</li>
+        <li><strong>CSRF Protection:</strong> Penerapan token Cross-Site Request Forgery bawaan CodeIgniter 3 pada semua formulir pengiriman data guna menangkal eksploitasi URL ilegal.</li>
+    </ul>
+
+    <h3>B. Fitur Menu Administrator (Admin Panel)</h3>
+    <ul>
+        <li><strong>Dashboard Finansial &amp; Operasional:</strong> Menyajikan 10 indikator ringkasan bisnis: Total Pendapatan (Rupiah), Total Pelanggan, Total Akun User, Total Transaksi, serta antrean cucian pada 6 tahapan status (Menunggu, Dicuci, Dikeringkan, Disetrika, Selesai, Diambil).</li>
+        <li><strong>Manajemen User (CRUD):</strong> Administrasi penuh data user sistem dengan paginasi halaman (limit 5 data per halaman) dan penanganan rute URL bebas error 404.</li>
+        <li><strong>Manajemen Pelanggan (CRUD):</strong> Administrasi data profil pelanggan. Pilihan dropdown akun user bersifat unik (hanya memunculkan user biasa yang belum terikat profil manapun).</li>
+        <li><strong>Manajemen Transaksi Laundry (CRUD):</strong>
+            <ul>
+                <li><em>Kode Transaksi Otomatis:</em> Pembuatan kode nota unik (TRX-YYYYMMDD-NNN) secara otomatis berdasarkan tanggal pengerjaan dan nomor urut transaksi hari tersebut.</li>
+                <li><em>Kalkulasi Harga Otomatis:</em> Sistem mengunci tarif resmi (Cuci Reguler: Rp7.000/kg, Cuci Express: Rp10.000/kg, Cuci + Setrika: Rp12.000/kg). Biaya total dihitung otomatis oleh server (berat * tarif) tanpa ada kolom input harga manual.</li>
+                <li><em>Kalkulator Estimasi Real-Time:</em> UI interaktif memanfaatkan JavaScript untuk menampilkan estimasi total harga secara instan saat admin mengetik berat cucian pada form.</li>
+                <li><em>Pencarian &amp; Filter Multi-Kolom:</em> Menyaring data transaksi berdasarkan kata kunci (nama pelanggan/no HP/kode nota), status pengerjaan, tanggal masuk, maupun nama pelanggan spesifik.</li>
+                <li><em>Ubah Status Cepat:</em> Dropdown inline pada tabel transaksi untuk merubah status cucian secara instan tanpa masuk form edit.</li>
+            </ul>
+        </li>
+        <li><strong>Laporan Keuangan &amp; Rekapitulasi Pendapatan:</strong> Menu untuk menyaring data keuangan berdasarkan pilihan waktu: Harian, Bulanan (Pilihan bulan &amp; tahun), maupun Rentang Tanggal (tanggal mulai s.d tanggal akhir).</li>
+    </ul>
+
+    <h3>C. Fitur Halaman Pelanggan (User Panel)</h3>
+    <ul>
+        <li><strong>Dashboard Ringkasan Cucian:</strong> Menyajikan jumlah cucian pribadi yang sedang diproses, selesai, diambil, dan total nota yang terdaftar.</li>
+        <li><strong>Pesan Laundry Mandiri:</strong> Fitur bagi pelanggan untuk membuat pesanan laundry secara mandiri lewat web. Pelanggan dapat memilih jenis layanan (Cuci Reguler, Cuci Express, Cuci+Setrika), memasukkan estimasi berat, memilih tanggal pengantaran, dan sistem akan mengalkulasi estimasi harga sebelum pesanan dikirimkan.</li>
+        <li><strong>Kartu Anggota Digital:</strong> Menampilkan status keanggotaan beserta ID Anggota unik (PLG-0000X) dan tanggal bergabung.</li>
+        <li><strong>Riwayat Laundry:</strong> Tabel riwayat cucian pribadi lengkap beserta visualisasi penjelasan alur 6 status laundry.</li>
+        <li><strong>Nota Belanja Digital (Invoice Detail):</strong> Rincian nota transaksi yang dapat diklik untuk melihat detail biaya, tarif per kg, subtotal, dan Timeline Pengerjaan Cucian saat ini.</li>
+        <li><strong>Pengelolaan Profil Mandiri:</strong> Pelanggan dapat mengedit data diri mereka (Nama, No HP, Alamat) dan memperbarui kata sandi akun secara mandiri.</li>
+    </ul>
+
+    <h3>D. Fitur Publik (Pengunjung Tanpa Login)</h3>
+    <ul>
+        <li><strong>Pelacak Status Publik (/cek-status):</strong> Form pencarian kode transaksi yang dapat diakses siapa saja secara publik.</li>
+        <li><strong>Timeline Progress 6 Status:</strong> Menampilkan visualisasi progress pengerjaan cucian langkah demi langkah dari status Menunggu hingga Diambil beserta pesan notifikasi panduan operasional.</li>
+    </ul>
+
+    <h2>3. Relasi Database (Schema Relational)</h2>
+    <p>
+        Database aplikasi menggunakan struktur relasional terstruktur demi integritas data yang kokoh:
+    </p>
+    <ul>
+        <li><strong>Tabel Users</strong> terelasi secara <strong>1-ke-1 (One-to-One)</strong> dengan <strong>Tabel Pelanggan</strong>. 1 Akun Login user hanya berhak memiliki 1 Profil Pelanggan resmi.</li>
+        <li><strong>Tabel Pelanggan</strong> terelasi secara <strong>1-ke-Banyak (One-to-Many)</strong> dengan <strong>Tabel Transaksi</strong>. 1 pelanggan terdaftar dapat melakukan banyak transaksi transaksi laundry berulang kali.</li>
+        <li>Semua relasi diikat dengan kunci tamu <em>(Foreign Keys)</em> yang dilengkapi aturan <strong>ON DELETE CASCADE</strong> dan <strong>ON UPDATE CASCADE</strong>. Hal ini menjamin konsistensi data, di mana jika akun login dihapus oleh admin, profil dan transaksi laundry terkait akan otomatis ikut terhapus bersih.</li>
+    </ul>
+
+    <h2>4. Diagram Aliran Kerja Sistem (Workflow)</h2>
+    <ol>
+        <li><strong>Akses Publik:</strong> Pengunjung mengakses halaman web. Pengunjung dapat mengecek nota transaksi lewat menu lacak publik tanpa login.</li>
+        <li><strong>Akses Pelanggan:</strong> Pelanggan melakukan login -> diarahkan ke dashboard personal -> melihat ringkasan cucian -> melihat kartu member -> memesan laundry secara mandiri via form input -> melacak invoice riwayat cucian pribadi -> mengedit data profil mereka.</li>
+        <li><strong>Akses Admin:</strong> Administrator login -> diarahkan ke dashboard utama -> melihat 10 metrik statistik bisnis -> mengelola data user -> mengelola data profil pelanggan -> mencatat transaksi cucian baru (dengan kode otomatis &amp; kalkulator harga otomatis) -> mengupdate status cucian -> melihat laporan pendapatan rekap bulanan/harian.</li>
+    </ol>
+
+    <h2>5. Petunjuk Menjalankan Project di Localhost</h2>
+    <ol>
+        <li>Aktifkan modul <strong>Apache</strong> dan <strong>MySQL</strong> pada XAMPP Control Panel Anda.</li>
+        <li>Ekstrak instalasi CodeIgniter 3 standar ke dalam folder local web server di: <code>C:\xampp\htdocs\laundry\</code>.</li>
+        <li>Salin semua berkas project LaundryKu (folder <code>application/</code>, <code>assets/</code>, dan <code>.htaccess</code>) ke folder <code>C:\xampp\htdocs\laundry\</code> tersebut (pilih overwrite file).</li>
+        <li>Buka phpMyAdmin di browser Anda (<code>http://localhost/phpmyadmin/</code>), buat database baru bernama <code>db_laundry</code>, lalu import file <code>db_laundry.sql</code> yang berada di dalam folder project Anda.</li>
+        <li>Pastikan pengaturan database pada berkas <code>application/config/database.php</code> sudah sesuai dengan konfigurasi server MySQL lokal Anda.</li>
+        <li>Akses aplikasi melalui browser Chrome di alamat: <strong><code>http://localhost/laundry/</code></strong>.</li>
+        <li>Gunakan akun demo berikut untuk masuk ke sistem:
+            <ul>
+                <li><strong>Admin:</strong> Username: <code>admin</code>, Password: <code>1234</code></li>
+                <li><strong>Pelanggan:</strong> Username: <code>budi</code>, Password: <code>1234</code></li>
+            </ul>
+        </li>
+    </ol>
+
+    <div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #d1d5db; font-size: 9pt; color: #6b7280; text-align: center;">
+        Dokumen Laporan Resmi LaundryKu — Dibuat secara otomatis untuk portofolio dan studi kasus pengembangan web.
+    </div>
+
+</div>
+</body>
+</html>

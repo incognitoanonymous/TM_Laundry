@@ -74,56 +74,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             </div>
 
-            <!-- ── Dynamic Customer Fields for Role = User ── -->
-            <div id="customer-fields-container" style="display: none; border-top: 1.5px dashed var(--gray-200); padding-top: 20px; margin-top: 20px;">
-                <h4 style="margin-bottom: 16px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
-                    <span>👥</span> Data Profil Pelanggan Baru
-                </h4>
-                
-                <div class="form-grid" style="grid-template-columns: 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label for="nama">👤 Nama Lengkap Pelanggan</label>
-                        <input 
-                            type="text" 
-                            id="nama" 
-                            name="nama" 
-                            class="form-control" 
-                            placeholder="Contoh: Budi Santoso" 
-                            value="<?= set_value('nama') ?>">
-                        <?php if (form_error('nama')): ?>
-                            <span class="error-msg"><?= form_error('nama') ?></span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="no_hp">📞 Nomor HP / WhatsApp</label>
-                        <input 
-                            type="text" 
-                            id="no_hp" 
-                            name="no_hp" 
-                            class="form-control" 
-                            placeholder="Contoh: 08123456789" 
-                            value="<?= set_value('no_hp') ?>">
-                        <?php if (form_error('no_hp')): ?>
-                            <span class="error-msg"><?= form_error('no_hp') ?></span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="alamat">🏠 Alamat Lengkap Rumah</label>
-                        <textarea 
-                            id="alamat" 
-                            name="alamat" 
-                            class="form-control" 
-                            placeholder="Contoh: Jl. Sudirman No. 25, Bandung" 
-                            rows="3"><?= set_value('alamat') ?></textarea>
-                        <?php if (form_error('alamat')): ?>
-                            <span class="error-msg"><?= form_error('alamat') ?></span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
             <div style="margin-top: 24px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="reset" class="btn btn-secondary" id="btn-reset-user">Reset Form</button>
                 <button type="submit" class="btn btn-primary" id="btn-simpan-user">🚀 Simpan User</button>
@@ -131,32 +81,3 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </form>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const roleSelect = document.getElementById('role');
-    const customerContainer = document.getElementById('customer-fields-container');
-    const namaInput = document.getElementById('nama');
-    const noHpInput = document.getElementById('no_hp');
-    const alamatInput = document.getElementById('alamat');
-
-    function toggleCustomerFields() {
-        if (roleSelect.value === 'user') {
-            customerContainer.style.display = 'block';
-            namaInput.setAttribute('required', 'required');
-            noHpInput.setAttribute('required', 'required');
-            alamatInput.setAttribute('required', 'required');
-        } else {
-            customerContainer.style.display = 'none';
-            namaInput.removeAttribute('required');
-            noHpInput.removeAttribute('required');
-            alamatInput.removeAttribute('required');
-        }
-    }
-
-    roleSelect.addEventListener('change', toggleCustomerFields);
-    
-    // Run once on load to handle validation errors preserving selected value
-    toggleCustomerFields();
-});
-</script>
