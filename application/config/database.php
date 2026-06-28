@@ -14,7 +14,7 @@ $query_builder = TRUE;
 
 $db['default'] = array(
     'dsn'          => '',
-    'hostname'     => 'localhost',
+    'hostname'     => '127.0.0.1',
     'username'     => 'root',        // Ganti sesuai username MySQL Anda
     'password'     => '',            // Ganti sesuai password MySQL Anda
     'database'     => 'db_laundry',
