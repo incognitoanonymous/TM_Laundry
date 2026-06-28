@@ -8,9 +8,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 // ── URL ────────────────────────────────────────────────────────
-// Ganti sesuai lokasi project Anda di localhost
-// Contoh: http://localhost/laundry/
-$config['base_url'] = 'http://localhost/laundry/';
+// Ganti sesuai lokasi project Anda di localhost (Dibuat dinamis agar mendukung XAMPP & GitHub Codespaces)
+$config['base_url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
 
 $config['index_page']    = '';  // kosong karena sudah pakai .htaccess
 $config['uri_protocol']  = 'REQUEST_URI';
