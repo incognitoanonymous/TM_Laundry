@@ -51,6 +51,7 @@ $route['admin/transaksi/edit/(:num)']   = 'transaksi/edit/$1';
 $route['admin/transaksi/update/(:num)'] = 'transaksi/update/$1';
 $route['admin/transaksi/status/(:num)'] = 'transaksi/update_status/$1';
 $route['admin/transaksi/verifikasi_bayar/(:num)'] = 'transaksi/verifikasi_bayar/$1';
+$route['admin/transaksi/konfirmasi_terima_uang/(:num)'] = 'transaksi/konfirmasi_terima_uang/$1';
 $route['admin/transaksi/export_excel']  = 'transaksi/export_excel';
 $route['admin/transaksi/hapus/(:num)']  = 'transaksi/hapus/$1';
 
