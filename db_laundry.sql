@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `transaksi` (
   `status_pembayaran` ENUM('Belum Bayar','Menunggu Verifikasi','Lunas') NOT NULL DEFAULT 'Belum Bayar',
   `bukti_pembayaran`  VARCHAR(255)  DEFAULT NULL,
   `catatan`           TEXT          DEFAULT NULL,
+  `uang_diterima`     TINYINT(1)    NOT NULL DEFAULT 0,
   `created_at`     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
   `updated_at`     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_transaksi`),

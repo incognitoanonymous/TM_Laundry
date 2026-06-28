@@ -79,6 +79,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <th>Status Cucian</th>
                 <th>Tanggal Masuk</th>
                 <th>Catatan Khusus</th>
+                <th>Setoran (Internal)</th>
             </tr>
         </thead>
         <tbody>
@@ -113,6 +114,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <td class="text-center"><?= htmlspecialchars($t['status']) ?></td>
                     <td class="text-center"><?= date('d-m-Y', strtotime($t['tanggal'])) ?></td>
                     <td><?= htmlspecialchars($t['catatan'] ?? '-') ?></td>
+                    <td class="text-center"><?= $t['uang_diterima'] == 1 ? 'Sudah Diterima' : 'Belum Diterima' ?></td>
                 </tr>
             <?php endforeach; ?>
             
@@ -124,7 +126,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <td class="text-right"><?= number_format($total_jemput, 0, ',', '.') ?></td>
                 <td class="text-right"><?= number_format($total_antar, 0, ',', '.') ?></td>
                 <td class="text-right">Rp <?= number_format($total_harga, 0, ',', '.') ?></td>
-                <td colspan="5" class="bg-total"></td>
+                <td colspan="6" class="bg-total"></td>
             </tr>
         </tbody>
     </table>

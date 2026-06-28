@@ -219,6 +219,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </a>
                             </div>
                         <?php endif; ?>
+
+                        <!-- Status Uang Diterima Admin (Internal) -->
+                        <div style="margin-top: 8px; border-top: 1px dashed var(--gray-300); padding-top: 6px; font-size: .68rem; text-align: left;">
+                            <?php if ($t['uang_diterima'] == 1): ?>
+                                <span style="color: #166534; font-weight: 700; display: block; text-align: center;">💰 Uang Diterima</span>
+                            <?php else: ?>
+                                <span style="color: #b45309; font-weight: 600; display: block; margin-bottom: 4px; text-align: center;">💸 Belum Diterima</span>
+                                <a href="<?= base_url('admin/transaksi/konfirmasi_terima_uang/' . $t['id_transaksi']) ?>" class="btn" style="font-size: .65rem; padding: 2px 4px; background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; border-radius: 3px; text-decoration: none; display: block; text-align: center; font-weight: 700;" onclick="return confirm('Apakah Anda yakin setoran/uang fisik untuk transaksi ini sudah diterima kasir/admin?');">
+                                    📥 Terima Uang
+                                </a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                     <td><?= date('d M Y', strtotime($t['tanggal'])) ?></td>
                     <td>

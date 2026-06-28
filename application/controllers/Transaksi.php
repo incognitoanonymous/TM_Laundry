@@ -203,6 +203,7 @@ class Transaksi extends CI_Controller {
             'metode_pembayaran' => $this->input->post('metode_pembayaran', TRUE),
             'status_pembayaran' => $this->input->post('status_pembayaran', TRUE),
             'catatan'           => $this->input->post('catatan', TRUE) ? trim($this->input->post('catatan', TRUE)) : NULL,
+            'uang_diterima'     => $this->input->post('uang_diterima') ? 1 : 0,
         ];
 
         if ($this->Transaksi_model->insert($insert)) {
@@ -328,6 +329,7 @@ class Transaksi extends CI_Controller {
             'metode_pembayaran' => $this->input->post('metode_pembayaran', TRUE),
             'status_pembayaran' => $this->input->post('status_pembayaran', TRUE),
             'catatan'           => $this->input->post('catatan', TRUE) ? trim($this->input->post('catatan', TRUE)) : NULL,
+            'uang_diterima'     => $this->input->post('uang_diterima') ? 1 : 0,
         ];
 
         if ($this->Transaksi_model->update($id, $update)) {
@@ -398,6 +400,37 @@ class Transaksi extends CI_Controller {
             $this->session->set_flashdata('success', 'Transaksi #' . $transaksi['kode_transaksi'] . ' berhasil diverifikasi Lunas.');
         } else {
             $this->session->set_flashdata('error', 'Gagal memverifikasi pembayaran.');
+        }
+
+        redirect('admin/transaksi');
+    }
+
+    /**
+     * Mengonfirmasi uang setoran pembayaran secara fisik sudah masuk/diterima kasir (Admin).
+     */
+    public function konfirmasi_terima_uang($id)
+    {
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi) {
+            $this->session->set_flashdata('error', 'Data transaksi tidak ditemukan.');
+            redirect('admin/transaksi');
+            return;
+        }
+
+        $update = [
+            'uang_diterima' => 1
+        ];
+
+        // Jika dia konfirmasi terima uang, otomatis status pembayaran diset Lunas jika sebelumnya belum Lunas
+        if ($transaksi['status_pembayaran'] !== 'Lunas') {
+            $update['status_pembayaran'] = 'Lunas';
+        }
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Uang pembayaran transaksi #' . $transaksi['kode_transaksi'] . ' berhasil dikonfirmasi diterima Kasir/Admin.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal mengonfirmasi penerimaan uang.');
         }
 
         redirect('admin/transaksi');

@@ -243,6 +243,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endif; ?>
                 </div>
 
+                <!-- UANG DITERIMA (INTERNAL) -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: #1e3a8a; background: #eff6ff; padding: 10px 14px; border: 1px solid #bfdbfe; border-radius: var(--radius);">
+                        <input type="checkbox" id="uang_diterima" name="uang_diterima" value="1" <?= set_checkbox('uang_diterima', '1', $transaksi['uang_diterima'] == 1) ?> style="width: 18px; height: 18px;">
+                        💵 [Internal Admin] Uang Pembayaran Sudah Diterima Kasir/Admin
+                    </label>
+                </div>
+
                 <!-- Preview Bukti Pembayaran -->
                 <?php if ($transaksi['metode_pembayaran'] === 'QRIS' && !empty($transaksi['bukti_pembayaran'])): ?>
                 <div style="background: var(--gray-50); border: 1px solid var(--gray-200); padding: 16px; border-radius: var(--radius); margin-top: 10px;">

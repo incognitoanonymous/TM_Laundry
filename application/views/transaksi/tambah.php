@@ -222,6 +222,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endif; ?>
                 </div>
 
+                <!-- UANG DITERIMA (INTERNAL) -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: #1e3a8a; background: #eff6ff; padding: 10px 14px; border: 1px solid #bfdbfe; border-radius: var(--radius);">
+                        <input type="checkbox" id="uang_diterima" name="uang_diterima" value="1" <?= set_checkbox('uang_diterima', '1') ?> style="width: 18px; height: 18px;">
+                        💵 [Internal Admin] Uang Pembayaran Sudah Diterima Kasir/Admin
+                    </label>
+                </div>
+
                 <!-- Card Tampilan Estimasi Harga Otomatis -->
                 <div class="stat-card" style="margin-top: 10px; background: var(--gray-50); border: 1.5px dashed var(--gray-300); display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-radius: var(--radius-lg);">
                     <div style="display: flex; align-items: center; gap: 12px;">
