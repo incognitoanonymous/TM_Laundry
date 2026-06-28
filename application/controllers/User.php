@@ -453,6 +453,20 @@ class User extends CI_Controller {
         $this->form_validation->set_rules('jenis_layanan', 'Jenis Layanan',  'required|trim|in_list[Cuci Reguler,Cuci Express,Cuci + Setrika]');
         $this->form_validation->set_rules('berat',         'Estimasi Berat (kg)', 'required|numeric|greater_than[0]');
         $this->form_validation->set_rules('tanggal',       'Tanggal Pengantaran', 'required');
+        $this->form_validation->set_rules('metode_pembayaran', 'Metode Pembayaran', 'required|in_list[Tunai,QRIS]');
+        $this->form_validation->set_rules('setuju_ketentuan_berat', 'Persetujuan Penyesuaian Berat', 'required', [
+            'required' => 'Anda harus menyetujui Ketentuan Penyesuaian Berat untuk melanjutkan.'
+        ]);
+
+        $is_jemput = $this->input->post('is_jemput') ? 1 : 0;
+        if ($is_jemput) {
+            $this->form_validation->set_rules('alamat_jemput', 'Alamat Jemput', 'required|trim');
+        }
+
+        $is_antar = $this->input->post('is_antar') ? 1 : 0;
+        if ($is_antar) {
+            $this->form_validation->set_rules('alamat_antar', 'Alamat Antar', 'required|trim');
+        }
 
         if ($this->form_validation->run() === FALSE) {
             $this->pesan();
@@ -477,22 +491,376 @@ class User extends CI_Controller {
         }
         $harga = $berat * $tarif;
 
+        $reward_option = $this->input->post('reward_option', TRUE);
+        $poin_used = 0;
+        $reward_used = NULL;
+        
+        $ongkir_jemput = $is_jemput ? ($berat * 10000.00) : 0.00;
+        $ongkir_antar  = $is_antar ? ($berat * 10000.00) : 0.00;
+        
+        // Cek Poin Reward Pelanggan saat ini
+        $current_poin = intval($pelanggan['poin']);
+        
+        if (!empty($reward_option)) {
+            if ($reward_option === 'free_cuci_reguler') {
+                if ($current_poin < 15) {
+                    $this->session->set_flashdata('error', 'Poin tidak cukup untuk menukarkan Free Cuci Reguler.');
+                    redirect('user/pesan');
+                    return;
+                }
+                if ($jenis_layanan !== 'Cuci Reguler') {
+                    $this->session->set_flashdata('error', 'Layanan terpilih harus Cuci Reguler untuk menukarkan reward ini.');
+                    redirect('user/pesan');
+                    return;
+                }
+                $poin_used = 15;
+                $reward_used = 'Free Cuci Reguler (Tukar 15 Poin)';
+                $harga = 0.00;
+            } elseif ($reward_option === 'free_cuci_express') {
+                if ($current_poin < 18) {
+                    $this->session->set_flashdata('error', 'Poin tidak cukup untuk menukarkan Free Cuci Express.');
+                    redirect('user/pesan');
+                    return;
+                }
+                if ($jenis_layanan !== 'Cuci Express') {
+                    $this->session->set_flashdata('error', 'Layanan terpilih harus Cuci Express untuk menukarkan reward ini.');
+                    redirect('user/pesan');
+                    return;
+                }
+                $poin_used = 18;
+                $reward_used = 'Free Cuci Express (Tukar 18 Poin)';
+                $harga = 0.00;
+            } elseif ($reward_option === 'free_cuci_setrika') {
+                if ($current_poin < 30) {
+                    $this->session->set_flashdata('error', 'Poin tidak cukup untuk menukarkan Free Cuci + Setrika.');
+                    redirect('user/pesan');
+                    return;
+                }
+                if ($jenis_layanan !== 'Cuci + Setrika') {
+                    $this->session->set_flashdata('error', 'Layanan terpilih harus Cuci + Setrika untuk menukarkan reward ini.');
+                    redirect('user/pesan');
+                    return;
+                }
+                $poin_used = 30;
+                $reward_used = 'Free Cuci + Setrika (Tukar 30 Poin)';
+                $harga = 0.00;
+            } elseif ($reward_option === 'free_kurir') {
+                if ($current_poin < 20) {
+                    $this->session->set_flashdata('error', 'Poin tidak cukup untuk menukarkan Free Kurir.');
+                    redirect('user/pesan');
+                    return;
+                }
+                if (!$is_jemput && !$is_antar) {
+                    $this->session->set_flashdata('error', 'Anda harus memilih minimal salah satu layanan kurir (Jemput atau Antar) untuk menggunakan reward Free Kurir.');
+                    redirect('user/pesan');
+                    return;
+                }
+                $poin_used = 20;
+                $reward_used = 'Free Kurir (Jemput & Antar) (Tukar 20 Poin)';
+                $ongkir_jemput = 0.00;
+                $ongkir_antar = 0.00;
+            }
+        }
+
         $insert = [
-            'kode_transaksi' => $this->Transaksi_model->generate_kode(),
-            'id_pelanggan'   => $pelanggan['id_pelanggan'],
-            'jenis_layanan'  => $jenis_layanan,
-            'berat'          => $berat,
-            'harga'          => $harga,
-            'status'         => 'Menunggu',
-            'tanggal'        => $this->input->post('tanggal', TRUE),
+            'kode_transaksi'    => $this->Transaksi_model->generate_kode(),
+            'id_pelanggan'      => $pelanggan['id_pelanggan'],
+            'jenis_layanan'     => $jenis_layanan,
+            'berat'             => $berat,
+            'berat_estimasi'    => $berat,
+            'harga'             => $harga + $ongkir_jemput + $ongkir_antar, // Total = Harga Laundry + Ongkir Jemput + Ongkir Antar
+            'status'            => 'Menunggu',
+            'tanggal'           => $this->input->post('tanggal', TRUE),
+            'is_jemput'         => $is_jemput,
+            'alamat_jemput'     => $is_jemput ? $this->input->post('alamat_jemput', TRUE) : NULL,
+            'gps_jemput'        => $is_jemput ? $this->input->post('gps_jemput', TRUE) : NULL,
+            'status_jemput'     => $is_jemput ? 'Menunggu Penjemputan' : 'Sudah Dijemput',
+            'ongkir_jemput'     => $ongkir_jemput,
+            'is_antar'          => $is_antar,
+            'alamat_antar'      => $is_antar ? $this->input->post('alamat_antar', TRUE) : NULL,
+            'gps_antar'         => $is_antar ? $this->input->post('gps_antar', TRUE) : NULL,
+            'status_antar'      => $is_antar ? 'Menunggu Pengantaran' : 'Sudah Diantarkan',
+            'ongkir_antar'      => $ongkir_antar,
+            'poin_used'         => $poin_used,
+            'reward_used'       => $reward_used,
+            'metode_pembayaran' => $this->input->post('metode_pembayaran', TRUE),
+            'status_pembayaran' => 'Belum Bayar',
+            'catatan'           => $this->input->post('catatan', TRUE) ? trim($this->input->post('catatan', TRUE)) : NULL,
         ];
 
         if ($this->Transaksi_model->insert($insert)) {
-            $this->session->set_flashdata('success', 'Pesanan laundry #' . $insert['kode_transaksi'] . ' berhasil dibuat! Silakan serahkan pakaian Anda ke outlet.');
+            $msg = 'Pesanan laundry #' . $insert['kode_transaksi'] . ' berhasil dibuat!';
+            $extra = [];
+            if ($is_jemput) {
+                $extra[] = 'Layanan Jemput (+Rp 20.000)';
+            }
+            if ($is_antar) {
+                $extra[] = 'Layanan Antar (+Rp 20.000)';
+            }
+            if (!empty($extra)) {
+                $msg .= ' ' . implode(' & ', $extra) . ' telah ditambahkan ke tagihan.';
+            } else {
+                $msg .= ' Silakan serahkan pakaian Anda ke outlet.';
+            }
+            $this->session->set_flashdata('success', $msg);
             redirect('user/riwayat');
         } else {
             $this->session->set_flashdata('error', 'Gagal memproses pesanan laundry.');
             $this->pesan();
         }
+    }
+
+    /**
+     * Konfirmasi bahwa cucian sudah dijemput oleh kurir (dari sisi Pelanggan).
+     */
+    public function konfirmasi_jemput($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan atau bukan milik Anda.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['is_jemput'] != 1) {
+            $this->session->set_flashdata('error', 'Transaksi ini tidak menggunakan layanan penjemputan.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        // Update status_jemput menjadi 'Sudah Dijemput'
+        $update = [
+            'status_jemput' => 'Sudah Dijemput'
+        ];
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Konfirmasi penjemputan berhasil! Terima kasih atas konfirmasinya.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memperbarui status penjemputan.');
+        }
+
+        redirect('user/detail/' . $id);
+    }
+
+    /**
+     * Konfirmasi bahwa cucian sudah diantarkan kembali ke rumah (dari sisi Pelanggan).
+     */
+    public function konfirmasi_antar($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan atau bukan milik Anda.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['is_antar'] != 1) {
+            $this->session->set_flashdata('error', 'Transaksi ini tidak menggunakan layanan pengantaran.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        // Update status_antar menjadi 'Sudah Diantarkan' dan status utama menjadi 'Diambil'
+        $update = [
+            'status_antar' => 'Sudah Diantarkan',
+            'status'       => 'Diambil'
+        ];
+
+        // Jika pembayaran Tunai (COD) dan status pembayaran masih Belum Bayar,
+        // otomatis ubah status pembayaran menjadi Lunas karena uang diserahkan langsung ke kurir
+        if ($transaksi['metode_pembayaran'] === 'Tunai' && $transaksi['status_pembayaran'] === 'Belum Bayar') {
+            $update['status_pembayaran'] = 'Lunas';
+        }
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Konfirmasi penerimaan laundry berhasil! Anda sekarang dapat memberikan ulasan. Terima kasih.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memperbarui status pengantaran.');
+        }
+
+        redirect('user/detail/' . $id);
+    }
+
+    /**
+     * Mengirimkan rating dan ulasan untuk transaksi yang sudah diambil.
+     */
+    public function rate_transaksi($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan atau bukan milik Anda.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['status'] !== 'Diambil') {
+            $this->session->set_flashdata('error', 'Anda hanya dapat memberikan ulasan pada transaksi yang sudah diambil/selesai.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        if (!empty($transaksi['rating'])) {
+            $this->session->set_flashdata('error', 'Anda sudah memberikan ulasan untuk transaksi ini.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $this->form_validation->set_rules('rating', 'Rating', 'required|integer|greater_than_equal_to[1]|less_than_equal_to[5]');
+        $this->form_validation->set_rules('review', 'Ulasan', 'required|trim');
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->session->set_flashdata('error', 'Silakan isi rating dan komentar ulasan dengan benar.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $update = [
+            'rating' => intval($this->input->post('rating')),
+            'review' => $this->input->post('review', TRUE)
+        ];
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Ulasan Anda berhasil dikirim! Terima kasih atas feedback Anda.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal menyimpan ulasan Anda.');
+        }
+
+        redirect('user/detail/' . $id);
+    }
+
+    /**
+     * Mengunggah bukti pembayaran QRIS (dari sisi Pelanggan).
+     */
+    public function upload_bukti($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan atau bukan milik Anda.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['metode_pembayaran'] !== 'QRIS') {
+            $this->session->set_flashdata('error', 'Transaksi ini tidak menggunakan pembayaran QRIS.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        if ($transaksi['status_pembayaran'] === 'Lunas') {
+            $this->session->set_flashdata('error', 'Pembayaran transaksi ini sudah diverifikasi (Lunas).');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        if ($transaksi['status'] === 'Menunggu') {
+            $this->session->set_flashdata('error', 'Pembayaran belum dapat dilakukan karena pakaian belum ditimbang oleh outlet.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        // Setup upload library config
+        $upload_path = './assets/uploads/bukti_bayar/';
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, TRUE);
+        }
+
+        $config['upload_path']   = $upload_path;
+        $config['allowed_types'] = 'gif|jpg|jpeg|png';
+        $config['max_size']      = 2048; // 2MB
+        $config['file_name']     = 'bukti_' . $transaksi['kode_transaksi'] . '_' . time();
+
+        $this->load->library('upload', $config);
+
+        if (!$this->upload->do_upload('bukti_pembayaran')) {
+            $this->session->set_flashdata('error', 'Gagal mengunggah bukti: ' . $this->upload->display_errors('', ''));
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $upload_data = $this->upload->data();
+        $file_name = $upload_data['file_name'];
+
+        // Hapus file lama jika ada
+        if (!empty($transaksi['bukti_pembayaran']) && file_exists($upload_path . $transaksi['bukti_pembayaran'])) {
+            @unlink($upload_path . $transaksi['bukti_pembayaran']);
+        }
+
+        $update = [
+            'bukti_pembayaran'  => $file_name,
+            'status_pembayaran' => 'Menunggu Verifikasi'
+        ];
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Bukti pembayaran berhasil diunggah! Harap tunggu verifikasi dari Admin.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memperbarui status transaksi.');
+        }
+
+        redirect('user/detail/' . $id);
+    }
+
+    /**
+     * Membatalkan pesanan laundry (hanya jika status masih Menunggu dan Belum Bayar).
+     */
+    public function batalkan_pesan($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan atau bukan milik Anda.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['status'] !== 'Menunggu' || $transaksi['status_pembayaran'] !== 'Belum Bayar') {
+            $this->session->set_flashdata('error', 'Pesanan yang sedang dikerjakan atau sudah dibayar tidak dapat dibatalkan.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        if ($this->Transaksi_model->delete($id)) {
+            $this->session->set_flashdata('success', 'Pesanan laundry #' . $transaksi['kode_transaksi'] . ' berhasil dibatalkan dan poin Anda (jika ada) telah dikembalikan.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal membatalkan pesanan.');
+        }
+
+        redirect('user/riwayat');
+    }
+
+    /**
+     * Menghitung jarak garis lurus antara dua koordinat (Haversine formula).
+     */
+    private function _calculate_distance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earth_radius = 6371; // km
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        return $earth_radius * $c;
     }
 }

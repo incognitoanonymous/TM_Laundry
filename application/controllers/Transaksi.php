@@ -88,12 +88,38 @@ class Transaksi extends CI_Controller {
         $data['offset'] = $page;
         $data['total_rows'] = $total_rows;
 
-        // Render views
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/navbar', $data);
         $this->load->view('transaksi/index', $data);
         $this->load->view('templates/footer', $data);
+    }
+
+    /**
+     * Ekspor data transaksi ke format Excel (custom styling).
+     */
+    public function export_excel()
+    {
+        // Ambil filter dari query string
+        $keyword       = $this->input->get('keyword', TRUE);
+        $status        = $this->input->get('status', TRUE);
+        $tanggal       = $this->input->get('tanggal', TRUE);
+        $id_pelanggan  = $this->input->get('id_pelanggan', TRUE);
+
+        $keyword      = !empty($keyword) ? trim($keyword) : NULL;
+        $status       = !empty($status) ? trim($status) : NULL;
+        $tanggal      = !empty($tanggal) ? trim($tanggal) : NULL;
+        $id_pelanggan = !empty($id_pelanggan) ? intval($id_pelanggan) : NULL;
+
+        $data['transaksi'] = $this->Transaksi_model->get_filtered($keyword, $status, $tanggal, $id_pelanggan);
+        
+        // Atur header download Excel (.xls)
+        header("Content-type: application/vnd-ms-excel");
+        header("Content-Disposition: attachment; filename=Laporan_Transaksi_LaundryKu_" . date('Ymd_His') . ".xls");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        $this->load->view('transaksi/excel', $data);
     }
 
     // ─── TAMBAH: Form Tambah Transaksi ─────────────────────────────────────
@@ -126,6 +152,20 @@ class Transaksi extends CI_Controller {
         $this->form_validation->set_rules('jenis_layanan', 'Jenis Layanan',  'required|trim|in_list[Cuci Reguler,Cuci Express,Cuci + Setrika]');
         $this->form_validation->set_rules('berat',         'Berat (kg)',     'required|numeric');
         $this->form_validation->set_rules('tanggal',       'Tanggal',        'required');
+        $this->form_validation->set_rules('metode_pembayaran', 'Metode Pembayaran', 'required|trim|in_list[Tunai,QRIS]');
+        $this->form_validation->set_rules('status_pembayaran', 'Status Pembayaran', 'required|trim|in_list[Belum Bayar,Menunggu Verifikasi,Lunas]');
+
+        $is_jemput = $this->input->post('is_jemput') ? 1 : 0;
+        if ($is_jemput) {
+            $this->form_validation->set_rules('alamat_jemput', 'Alamat Jemput', 'required|trim');
+            $this->form_validation->set_rules('status_jemput', 'Status Jemput', 'required|trim|in_list[Menunggu Penjemputan,Sudah Dijemput]');
+        }
+
+        $is_antar = $this->input->post('is_antar') ? 1 : 0;
+        if ($is_antar) {
+            $this->form_validation->set_rules('alamat_antar', 'Alamat Antar', 'required|trim');
+            $this->form_validation->set_rules('status_antar', 'Status Antar', 'required|trim|in_list[Menunggu Pengantaran,Sudah Diantarkan]');
+        }
 
         if ($this->form_validation->run() === FALSE) {
             $this->tambah();
@@ -139,14 +179,30 @@ class Transaksi extends CI_Controller {
         $tarif = $this->_get_tarif($jenis_layanan);
         $harga = $berat * $tarif;
 
+        $ongkir_jemput = $is_jemput ? ($berat * 10000.00) : 0.00;
+        $ongkir_antar  = $is_antar ? ($berat * 10000.00) : 0.00;
+
         $insert = [
-            'kode_transaksi' => $this->Transaksi_model->generate_kode(),
-            'id_pelanggan'   => $this->input->post('id_pelanggan',  TRUE),
-            'jenis_layanan'  => $jenis_layanan,
-            'berat'          => $berat,
-            'harga'          => $harga, // Hasil kalkulasi otomatis
-            'status'         => 'Menunggu', // Status default awal
-            'tanggal'        => $this->input->post('tanggal',       TRUE),
+            'kode_transaksi'    => $this->Transaksi_model->generate_kode(),
+            'id_pelanggan'      => $this->input->post('id_pelanggan',  TRUE),
+            'jenis_layanan'     => $jenis_layanan,
+            'berat'             => $berat,
+            'harga'             => $harga + $ongkir_jemput + $ongkir_antar, // Hasil kalkulasi otomatis + ongkir
+            'status'            => 'Menunggu', // Status default awal
+            'tanggal'           => $this->input->post('tanggal',       TRUE),
+            'is_jemput'         => $is_jemput,
+            'alamat_jemput'     => $is_jemput ? $this->input->post('alamat_jemput', TRUE) : NULL,
+            'gps_jemput'        => $is_jemput ? $this->input->post('gps_jemput', TRUE) : NULL,
+            'status_jemput'     => $is_jemput ? $this->input->post('status_jemput', TRUE) : 'Sudah Dijemput',
+            'ongkir_jemput'     => $ongkir_jemput,
+            'is_antar'          => $is_antar,
+            'alamat_antar'      => $is_antar ? $this->input->post('alamat_antar', TRUE) : NULL,
+            'gps_antar'         => $is_antar ? $this->input->post('gps_antar', TRUE) : NULL,
+            'status_antar'      => $is_antar ? $this->input->post('status_antar', TRUE) : 'Sudah Diantarkan',
+            'ongkir_antar'      => $ongkir_antar,
+            'metode_pembayaran' => $this->input->post('metode_pembayaran', TRUE),
+            'status_pembayaran' => $this->input->post('status_pembayaran', TRUE),
+            'catatan'           => $this->input->post('catatan', TRUE) ? trim($this->input->post('catatan', TRUE)) : NULL,
         ];
 
         if ($this->Transaksi_model->insert($insert)) {
@@ -197,6 +253,20 @@ class Transaksi extends CI_Controller {
         $this->form_validation->set_rules('berat',         'Berat (kg)',     'required|numeric');
         $this->form_validation->set_rules('status',        'Status',         'required|trim|in_list[Menunggu,Dicuci,Dikeringkan,Disetrika,Selesai,Diambil]');
         $this->form_validation->set_rules('tanggal',       'Tanggal',        'required');
+        $this->form_validation->set_rules('metode_pembayaran', 'Metode Pembayaran', 'required|trim|in_list[Tunai,QRIS]');
+        $this->form_validation->set_rules('status_pembayaran', 'Status Pembayaran', 'required|trim|in_list[Belum Bayar,Menunggu Verifikasi,Lunas]');
+
+        $is_jemput = $this->input->post('is_jemput') ? 1 : 0;
+        if ($is_jemput) {
+            $this->form_validation->set_rules('alamat_jemput', 'Alamat Jemput', 'required|trim');
+            $this->form_validation->set_rules('status_jemput', 'Status Jemput', 'required|trim|in_list[Menunggu Penjemputan,Sudah Dijemput]');
+        }
+
+        $is_antar = $this->input->post('is_antar') ? 1 : 0;
+        if ($is_antar) {
+            $this->form_validation->set_rules('alamat_antar', 'Alamat Antar', 'required|trim');
+            $this->form_validation->set_rules('status_antar', 'Status Antar', 'required|trim|in_list[Menunggu Pengantaran,Sudah Diantarkan]');
+        }
 
         if ($this->form_validation->run() === FALSE) {
             $this->edit($id);
@@ -204,19 +274,60 @@ class Transaksi extends CI_Controller {
         }
 
         $jenis_layanan = $this->input->post('jenis_layanan', TRUE);
+        $status        = $this->input->post('status', TRUE);
+        if ($status === 'Disetrika' && $jenis_layanan !== 'Cuci + Setrika') {
+            $this->session->set_flashdata('error', 'Status "Disetrika" hanya diperbolehkan untuk layanan Cuci + Setrika.');
+            $this->edit($id);
+            return;
+        }
         $berat         = floatval($this->input->post('berat', TRUE));
+
+        // Ambil data transaksi lama untuk memeriksa penggunaan reward
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+        if (!$transaksi) {
+            $this->session->set_flashdata('error', 'Data transaksi tidak ditemukan.');
+            redirect('admin/transaksi');
+            return;
+        }
 
         // Kalkulasi ulang harga otomatis
         $tarif = $this->_get_tarif($jenis_layanan);
         $harga = $berat * $tarif;
 
+        // Cek dan terapkan diskon reward dari transaksi asli
+        $reward = isset($transaksi['reward_used']) ? $transaksi['reward_used'] : '';
+        if (stripos($reward, 'Free Cuci') !== FALSE) {
+            $harga = 0.00;
+        }
+
+        $ongkir_jemput = $is_jemput ? ($berat * 10000.00) : 0.00;
+        $ongkir_antar  = $is_antar ? ($berat * 10000.00) : 0.00;
+
+        if (stripos($reward, 'Free Kurir') !== FALSE) {
+            $ongkir_jemput = 0.00;
+            $ongkir_antar = 0.00;
+        }
+
         $update = [
-            'id_pelanggan'  => $this->input->post('id_pelanggan',  TRUE),
-            'jenis_layanan' => $jenis_layanan,
-            'berat'         => $berat,
-            'harga'         => $harga,
-            'status'        => $this->input->post('status',        TRUE),
-            'tanggal'       => $this->input->post('tanggal',       TRUE),
+            'id_pelanggan'      => $this->input->post('id_pelanggan',  TRUE),
+            'jenis_layanan'     => $jenis_layanan,
+            'berat'             => $berat,
+            'harga'             => $harga + $ongkir_jemput + $ongkir_antar,
+            'status'            => $this->input->post('status',        TRUE),
+            'tanggal'           => $this->input->post('tanggal',       TRUE),
+            'is_jemput'         => $is_jemput,
+            'alamat_jemput'     => $is_jemput ? $this->input->post('alamat_jemput', TRUE) : NULL,
+            'gps_jemput'        => $is_jemput ? $this->input->post('gps_jemput', TRUE) : NULL,
+            'status_jemput'     => $is_jemput ? $this->input->post('status_jemput', TRUE) : 'Sudah Dijemput',
+            'ongkir_jemput'     => $ongkir_jemput,
+            'is_antar'          => $is_antar,
+            'alamat_antar'      => $is_antar ? $this->input->post('alamat_antar', TRUE) : NULL,
+            'gps_antar'         => $is_antar ? $this->input->post('gps_antar', TRUE) : NULL,
+            'status_antar'      => $is_antar ? $this->input->post('status_antar', TRUE) : 'Sudah Diantarkan',
+            'ongkir_antar'      => $ongkir_antar,
+            'metode_pembayaran' => $this->input->post('metode_pembayaran', TRUE),
+            'status_pembayaran' => $this->input->post('status_pembayaran', TRUE),
+            'catatan'           => $this->input->post('catatan', TRUE) ? trim($this->input->post('catatan', TRUE)) : NULL,
         ];
 
         if ($this->Transaksi_model->update($id, $update)) {
@@ -244,10 +355,49 @@ class Transaksi extends CI_Controller {
             return;
         }
 
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+        if (!$transaksi) {
+            $this->session->set_flashdata('error', 'Data transaksi tidak ditemukan.');
+            redirect('admin/transaksi');
+            return;
+        }
+
+        if ($status === 'Disetrika' && $transaksi['jenis_layanan'] !== 'Cuci + Setrika') {
+            $this->session->set_flashdata('error', 'Status "Disetrika" hanya diperbolehkan untuk layanan Cuci + Setrika.');
+            redirect('admin/transaksi');
+            return;
+        }
+
         if ($this->Transaksi_model->update_status($id, $status)) {
             $this->session->set_flashdata('success', 'Status cucian transaksi berhasil diperbarui menjadi: ' . $status);
         } else {
             $this->session->set_flashdata('error', 'Gagal memperbarui status cucian.');
+        }
+
+        redirect('admin/transaksi');
+    }
+
+    /**
+     * Memverifikasi pembayaran QRIS transaksi secara instan (dari sisi Admin).
+     */
+    public function verifikasi_bayar($id)
+    {
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi) {
+            $this->session->set_flashdata('error', 'Data transaksi tidak ditemukan.');
+            redirect('admin/transaksi');
+            return;
+        }
+
+        $update = [
+            'status_pembayaran' => 'Lunas'
+        ];
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Transaksi #' . $transaksi['kode_transaksi'] . ' berhasil diverifikasi Lunas.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memverifikasi pembayaran.');
         }
 
         redirect('admin/transaksi');

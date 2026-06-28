@@ -41,6 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <th>Nama Lengkap</th>
                     <th>Username Akun</th>
                     <th>Nomor WhatsApp</th>
+                    <th>Poin Reward</th>
                     <th>Alamat Rumah</th>
                     <th style="width: 180px; text-align: center;">Tindakan</th>
                 </tr>
@@ -56,8 +57,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <code style="font-size:.8rem; background:var(--gray-100); padding:3px 8px; border-radius:5px; font-weight:600; color:var(--primary);">
                             @<?= htmlspecialchars($p['username'] ?? '-') ?>
                         </code>
+                    <td>
+                        <?php
+                        $phone = preg_replace('/[^0-9]/', '', $p['no_hp']);
+                        if (strpos($phone, '0') === 0) {
+                            $phone = '62' . substr($phone, 1);
+                        }
+                        ?>
+                        <a href="https://wa.me/<?= $phone ?>" target="_blank" style="color: #10b981; font-weight: 600; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;" title="Hubungi via WhatsApp">
+                            💬 <?= htmlspecialchars($p['no_hp']) ?>
+                        </a>
                     </td>
-                    <td><?= htmlspecialchars($p['no_hp']) ?></td>
+                    <td>
+                        <strong style="color: #1d4ed8; font-weight: 700;">🎁 <?= intval($p['poin']) ?> pts</strong>
+                    </td>
                     <td style="max-width:260px;">
                         <span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?= htmlspecialchars($p['alamat']) ?>">
                             <?= htmlspecialchars($p['alamat']) ?>

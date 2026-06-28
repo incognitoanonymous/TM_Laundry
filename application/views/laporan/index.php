@@ -12,6 +12,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <h2>📊 Laporan Transaksi & Pendapatan</h2>
         <p>Analisis pendapatan laundry, jumlah pelanggan, dan status penyelesaian cucian.</p>
     </div>
+    <div>
+        <a href="<?= base_url('admin/laporan/export_excel?' . http_build_query($_GET)) ?>" class="btn btn-success" id="btn-export-laporan-excel">
+            🟢 Ekspor Excel
+        </a>
+    </div>
 </div>
 
 <!-- ── PANEL FILTER LAPORAN ── -->

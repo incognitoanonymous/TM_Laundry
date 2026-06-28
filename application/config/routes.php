@@ -50,10 +50,13 @@ $route['admin/transaksi/simpan']        = 'transaksi/simpan';
 $route['admin/transaksi/edit/(:num)']   = 'transaksi/edit/$1';
 $route['admin/transaksi/update/(:num)'] = 'transaksi/update/$1';
 $route['admin/transaksi/status/(:num)'] = 'transaksi/update_status/$1';
+$route['admin/transaksi/verifikasi_bayar/(:num)'] = 'transaksi/verifikasi_bayar/$1';
+$route['admin/transaksi/export_excel']  = 'transaksi/export_excel';
 $route['admin/transaksi/hapus/(:num)']  = 'transaksi/hapus/$1';
 
 // ── RUTE ADMIN: LAPORAN ──────────────────────────────────────────────────
-$route['admin/laporan']         = 'laporan/index';
+$route['admin/laporan']              = 'laporan/index';
+$route['admin/laporan/export_excel'] = 'laporan/export_excel';
 
 // ── RUTE USER / PELANGGAN ────────────────────────────────────────────────
 $route['user/dashboard']        = 'user/dashboard';
@@ -63,6 +66,11 @@ $route['user/profil/update']    = 'user/update_profil';
 $route['user/detail/(:num)']    = 'user/detail/$1';
 $route['user/pesan']            = 'user/pesan';
 $route['user/pesan/proses']     = 'user/proses_pesan';
+$route['user/pesan/konfirmasi_jemput/(:num)'] = 'user/konfirmasi_jemput/$1';
+$route['user/pesan/konfirmasi_antar/(:num)']  = 'user/konfirmasi_antar/$1';
+$route['user/rate_transaksi/(:num)']          = 'user/rate_transaksi/$1';
+$route['user/upload_bukti/(:num)']            = 'user/upload_bukti/$1';
+$route['user/pesan/batalkan/(:num)']          = 'user/batalkan_pesan/$1';
 
 // ── RUTE CEK STATUS TANPA LOGIN (PUBLIK) ─────────────────────────────────
 $route['cek-status']            = 'status/index';

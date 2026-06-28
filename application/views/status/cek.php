@@ -850,7 +850,7 @@
                         <span class="trx-date">Tanggal Masuk: <?= date('d M Y', strtotime($t['tanggal'])) ?></span>
                     </div>
                     
-                    <div class="result-details-grid">
+                    <div class="result-details-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                         <div class="detail-item">
                             <span>Nama Pelanggan</span>
                             <strong><?= htmlspecialchars($t['nama_pelanggan']) ?></strong>
@@ -869,7 +869,96 @@
                                 Rp <?= number_format($t['harga'], 0, ',', '.') ?>
                             </strong>
                         </div>
+                        <div class="detail-item">
+                            <span>Metode Pembayaran</span>
+                            <strong><?= htmlspecialchars($t['metode_pembayaran']) ?></strong>
+                        </div>
+                        <div class="detail-item">
+                            <span>Status Pembayaran</span>
+                            <?php
+                            $st = $t['status_pembayaran'];
+                            $bg = '';
+                            if ($st === 'Lunas') {
+                                $bg = 'var(--success)';
+                            } elseif ($st === 'Menunggu Verifikasi') {
+                                $bg = 'var(--warning)';
+                            } else {
+                                $bg = 'var(--danger)';
+                            }
+                            ?>
+                            <div>
+                                <span class="badge" style="font-size: .8rem; padding: 4px 12px; font-weight: 700; color: white; border-radius: 4px; display: inline-block; background: <?= $bg ?>;">
+                                    <?= htmlspecialchars($st) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span>Estimasi Selesai</span>
+                            <?php
+                            $tanggal_masuk = $t['tanggal'];
+                            $jenis_layanan = $t['jenis_layanan'];
+                            $days = ($jenis_layanan === 'Cuci Express') ? 1 : 3;
+                            $estimasi_selesai = date('d F Y', strtotime($tanggal_masuk . " + {$days} days"));
+                            ?>
+                            <strong><?= $estimasi_selesai ?></strong>
+                        </div>
+                        <div class="detail-item">
+                            <span>Catatan Khusus</span>
+                            <strong style="font-weight: 500; font-style: <?= empty($t['catatan']) ? 'italic' : 'normal' ?>; color: <?= empty($t['catatan']) ? 'var(--gray-600)' : '#92400e' ?>;">
+                                <?= !empty($t['catatan']) ? htmlspecialchars($t['catatan']) : 'Tidak ada catatan.' ?>
+                            </strong>
+                        </div>
                     </div>
+
+                    <!-- Detail Penjemputan jika ada -->
+                    <?php if ($t['is_jemput'] == 1): ?>
+                    <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 20px; margin-top: 15px; font-size: .85rem; line-height: 1.5; color: var(--gray-800); text-align: left;">
+                        <strong style="color: var(--gray-900); display: block; margin-bottom: 6px;">🚚 Informasi Penjemputan Cucian</strong>
+                        <div style="margin-bottom: 6px;">
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">ALAMAT JEMPUT</span>
+                            <span><?= htmlspecialchars($t['alamat_jemput']) ?></span>
+                        </div>
+                        <?php if (!empty($t['gps_jemput'])): ?>
+                        <div style="margin-bottom: 6px;">
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">LINK GPS / MAPS</span>
+                            <a href="<?= htmlspecialchars($t['gps_jemput']) ?>" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                📍 Buka Peta Lokasi
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <div>
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">STATUS PENJEMPUTAN</span>
+                            <span class="badge badge-<?= $t['status_jemput'] === 'Sudah Dijemput' ? 'selesai' : 'proses' ?>" style="font-size: .75rem; padding: 2px 8px; display: inline-block; margin-top: 2px;">
+                                <?= htmlspecialchars($t['status_jemput']) ?>
+                            </span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Detail Pengantaran jika ada -->
+                    <?php if ($t['is_antar'] == 1): ?>
+                    <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 20px; margin-top: 15px; font-size: .85rem; line-height: 1.5; color: var(--gray-800); text-align: left;">
+                        <strong style="color: var(--gray-900); display: block; margin-bottom: 6px;">💡 Informasi Pengantaran Laundry</strong>
+                        <div style="margin-bottom: 6px;">
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">ALAMAT ANTAR</span>
+                            <span><?= htmlspecialchars($t['alamat_antar']) ?></span>
+                        </div>
+                        <?php if (!empty($t['gps_antar'])): ?>
+                        <div style="margin-bottom: 6px;">
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">LINK GPS / MAPS</span>
+                            <a href="<?= htmlspecialchars($t['gps_antar']) ?>" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                📍 Buka Peta Lokasi
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <div>
+                            <span style="color: var(--gray-500); display: block; font-size: .72rem; font-weight: 600;">STATUS PENGANTARAN</span>
+                            <span class="badge badge-<?= $t['status_antar'] === 'Sudah Diantarkan' ? 'selesai' : 'proses' ?>" style="font-size: .75rem; padding: 2px 8px; display: inline-block; margin-top: 2px;">
+                                <?= htmlspecialchars($t['status_antar']) ?>
+                            </span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
 
                     <!-- TIMELINE -->
                     <div class="result-timeline">
@@ -881,16 +970,26 @@
                             if ($current_index === FALSE) $current_index = 0;
 
                             foreach ($status_flow as $idx => $step):
-                                $is_passed = $idx <= $current_index;
-                                $is_current = $idx === $current_index;
-                                $step_class = $is_current ? 'active' : ($is_passed ? 'passed' : '');
+                                $is_bypassed = ($step === 'Disetrika' && $t['jenis_layanan'] !== 'Cuci + Setrika');
+                                if ($is_bypassed) {
+                                    $is_passed = false;
+                                    $is_current = false;
+                                    $step_class = 'bypassed';
+                                } else {
+                                    $is_passed = $idx <= $current_index;
+                                    $is_current = $idx === $current_index;
+                                    $step_class = $is_current ? 'active' : ($is_passed ? 'passed' : '');
+                                }
                             ?>
-                                <div class="timeline-step <?= $step_class ?>">
-                                    <div class="timeline-circle">
-                                        <?= $is_passed ? '✓' : $idx + 1 ?>
+                                <div class="timeline-step <?= $step_class ?>" <?= $is_bypassed ? 'style="opacity: 0.55;"' : '' ?>>
+                                    <div class="timeline-circle" <?= $is_bypassed ? 'style="background: var(--danger); color: var(--white); border-color: var(--danger);"' : '' ?>>
+                                        <?= $is_bypassed ? '✗' : ($is_passed ? '✓' : $idx + 1) ?>
                                     </div>
-                                    <span class="timeline-label">
+                                    <span class="timeline-label" <?= $is_bypassed ? 'style="color: var(--danger);"' : '' ?>>
                                         <?= htmlspecialchars($step) ?>
+                                        <?php if ($is_bypassed): ?>
+                                            <span class="current-badge" style="background: var(--danger); color: var(--white);">Tidak Berlaku</span>
+                                        <?php endif; ?>
                                         <?= $is_current ? '<span class="current-badge">Sedang diproses</span>' : '' ?>
                                     </span>
                                 </div>

@@ -506,3 +506,36 @@ label { font-size: .82rem; font-weight: 600; color: var(--gray-700); }
     .stats-grid { grid-template-columns: 1fr; }
     .page-header { flex-direction: column; }
 }
+
+/* ── Print Styles ────────────────────────────────────────── */
+@media print {
+    .sidebar, .topbar, .page-header, .card-header .btn, .btn, form, .alert, #form-filter-laporan, #btn-submit-laporan, .pagination {
+        display: none !important;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    .page-body {
+        padding: 0 !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .card-body {
+        padding: 0 !important;
+    }
+    table {
+        border: 1px solid #e2e8f0 !important;
+        width: 100% !important;
+    }
+    th, td {
+        border: 1px solid #e2e8f0 !important;
+    }
+    tr {
+        page-break-inside: avoid;
+    }
+}

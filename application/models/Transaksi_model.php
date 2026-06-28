@@ -22,7 +22,7 @@ class Transaksi_model extends CI_Model {
      */
     public function get_all()
     {
-        $this->db->select('transaksi.*, pelanggan.nama AS nama_pelanggan');
+        $this->db->select('transaksi.*, pelanggan.nama AS nama_pelanggan, pelanggan.no_hp');
         $this->db->from($this->table);
         $this->db->join('pelanggan', 'pelanggan.id_pelanggan = transaksi.id_pelanggan', 'left');
         $this->db->order_by('transaksi.tanggal', 'DESC');
@@ -35,13 +35,29 @@ class Transaksi_model extends CI_Model {
      */
     public function get_paginated($limit, $start, $keyword = NULL, $status = NULL, $tanggal = NULL, $id_pelanggan = NULL)
     {
-        $this->db->select('transaksi.*, pelanggan.nama AS nama_pelanggan');
+        $this->db->select('transaksi.*, pelanggan.nama AS nama_pelanggan, pelanggan.no_hp');
         $this->db->from($this->table);
         $this->db->join('pelanggan', 'pelanggan.id_pelanggan = transaksi.id_pelanggan', 'left');
 
         $this->_apply_search_filters($keyword, $status, $tanggal, $id_pelanggan);
 
         $this->db->limit($limit, $start);
+        $this->db->order_by('transaksi.tanggal', 'DESC');
+        $this->db->order_by('transaksi.id_transaksi', 'DESC');
+        return $this->db->get()->result_array();
+    }
+
+    /**
+     * Ambil data transaksi beserta nama pelanggan (JOIN) tanpa limit paginasi (untuk ekspor Excel).
+     */
+    public function get_filtered($keyword = NULL, $status = NULL, $tanggal = NULL, $id_pelanggan = NULL)
+    {
+        $this->db->select('transaksi.*, pelanggan.nama AS nama_pelanggan, pelanggan.no_hp');
+        $this->db->from($this->table);
+        $this->db->join('pelanggan', 'pelanggan.id_pelanggan = transaksi.id_pelanggan', 'left');
+
+        $this->_apply_search_filters($keyword, $status, $tanggal, $id_pelanggan);
+
         $this->db->order_by('transaksi.tanggal', 'DESC');
         $this->db->order_by('transaksi.id_transaksi', 'DESC');
         return $this->db->get()->result_array();
@@ -140,7 +156,41 @@ class Transaksi_model extends CI_Model {
      */
     public function insert($data)
     {
-        return $this->db->insert($this->table, $data);
+        // 1. Hitung poin yang didapatkan dari jenis layanan
+        $jenis = $data['jenis_layanan'];
+        $poin_earned = 0;
+        $reward = isset($data['reward_used']) ? $data['reward_used'] : '';
+        if (stripos($reward, 'Free Cuci') === FALSE) {
+            if ($jenis === 'Cuci Reguler') {
+                $poin_earned = 1;
+            } elseif ($jenis === 'Cuci Express') {
+                $poin_earned = 2;
+            } elseif ($jenis === 'Cuci + Setrika') {
+                $poin_earned = 3;
+            }
+        }
+        
+        $data['poin_earned'] = $poin_earned;
+
+        // Mulai database transaction untuk menjamin konsistensi
+        $this->db->trans_start();
+
+        // 2. Simpan transaksi
+        $this->db->insert($this->table, $data);
+        $insert_id = $this->db->insert_id();
+
+        // 3. Tambah poin_earned ke pelanggan dan kurangi poin_used (jika ada)
+        $id_pel = $data['id_pelanggan'];
+        $poin_used = isset($data['poin_used']) ? intval($data['poin_used']) : 0;
+        
+        // Update poin pelanggan: poin = poin + poin_earned - poin_used
+        $this->db->set('poin', "poin + {$poin_earned} - {$poin_used}", FALSE);
+        $this->db->where('id_pelanggan', $id_pel);
+        $this->db->update('pelanggan');
+
+        $this->db->trans_complete();
+
+        return $this->db->trans_status() !== FALSE;
     }
 
     /**
@@ -152,8 +202,68 @@ class Transaksi_model extends CI_Model {
      */
     public function update($id, $data)
     {
+        // Ambil data transaksi lama untuk menghitung ulang selisih poin
+        $old = $this->db->where('id_transaksi', $id)->get($this->table)->row_array();
+        if (!$old) {
+            return false;
+        }
+
+        // Tentukan reward_used terbaru
+        $reward = isset($data['reward_used']) ? $data['reward_used'] : (isset($old['reward_used']) ? $old['reward_used'] : '');
+        $jenis = isset($data['jenis_layanan']) ? $data['jenis_layanan'] : $old['jenis_layanan'];
+
+        // Hitung poin_earned baru
+        $poin_earned = 0;
+        if (stripos($reward, 'Free Cuci') === FALSE) {
+            if ($jenis === 'Cuci Reguler') {
+                $poin_earned = 1;
+            } elseif ($jenis === 'Cuci Express') {
+                $poin_earned = 2;
+            } elseif ($jenis === 'Cuci + Setrika') {
+                $poin_earned = 3;
+            }
+        }
+        $data['poin_earned'] = $poin_earned;
+
+        $poin_used = isset($data['poin_used']) ? intval($data['poin_used']) : $old['poin_used'];
+        $id_pel = isset($data['id_pelanggan']) ? $data['id_pelanggan'] : $old['id_pelanggan'];
+
+        // Jika status diubah menjadi Diambil, maka status pembayaran otomatis diset menjadi Lunas
+        if (isset($data['status']) && $data['status'] === 'Diambil') {
+            $data['status_pembayaran'] = 'Lunas';
+        }
+
+        $this->db->trans_start();
+
+        // 1. Update data transaksi
         $this->db->where('id_transaksi', $id);
-        return $this->db->update($this->table, $data);
+        $this->db->update($this->table, $data);
+
+        // 2. Jika pelanggan tidak berubah, update selisihnya
+        if ($old['id_pelanggan'] == $id_pel) {
+            $diff_poin = ($poin_earned - $old['poin_earned']) - ($poin_used - $old['poin_used']);
+            if ($diff_poin != 0) {
+                $this->db->set('poin', "poin + ({$diff_poin})", FALSE);
+                $this->db->where('id_pelanggan', $id_pel);
+                $this->db->update('pelanggan');
+            }
+        } else {
+            // Jika pelanggan berubah, kembalikan poin pelanggan lama dan kurangi pelanggan baru
+            // Pelanggan lama: kurangi poin_earned lama, tambah kembali poin_used lama
+            $diff_old = $old['poin_used'] - $old['poin_earned'];
+            $this->db->set('poin', "poin + ({$diff_old})", FALSE);
+            $this->db->where('id_pelanggan', $old['id_pelanggan']);
+            $this->db->update('pelanggan');
+
+            // Pelanggan baru: tambah poin_earned baru, kurangi poin_used baru
+            $diff_new = $poin_earned - $poin_used;
+            $this->db->set('poin', "poin + ({$diff_new})", FALSE);
+            $this->db->where('id_pelanggan', $id_pel);
+            $this->db->update('pelanggan');
+        }
+
+        $this->db->trans_complete();
+        return $this->db->trans_status() !== FALSE;
     }
 
     /**
@@ -165,8 +275,12 @@ class Transaksi_model extends CI_Model {
      */
     public function update_status($id, $status)
     {
+        $data = ['status' => $status];
+        if ($status === 'Diambil') {
+            $data['status_pembayaran'] = 'Lunas';
+        }
         $this->db->where('id_transaksi', $id);
-        return $this->db->update($this->table, ['status' => $status]);
+        return $this->db->update($this->table, $data);
     }
 
     // ─── DELETE ────────────────────────────────────────────────────────────
@@ -179,7 +293,28 @@ class Transaksi_model extends CI_Model {
      */
     public function delete($id)
     {
-        return $this->db->delete($this->table, ['id_transaksi' => $id]);
+        $old = $this->db->where('id_transaksi', $id)->get($this->table)->row_array();
+        if (!$old) {
+            return false;
+        }
+
+        $this->db->trans_start();
+
+        // Kembalikan poin pelanggan
+        // Saldo poin baru = poin - poin_earned + poin_used
+        $diff = $old['poin_used'] - $old['poin_earned'];
+        if ($diff != 0) {
+            $this->db->set('poin', "poin + ({$diff})", FALSE);
+            $this->db->where('id_pelanggan', $old['id_pelanggan']);
+            $this->db->update('pelanggan');
+        }
+
+        // Hapus transaksi
+        $this->db->where('id_transaksi', $id);
+        $this->db->delete($this->table);
+
+        $this->db->trans_complete();
+        return $this->db->trans_status() !== FALSE;
     }
 
     // ─── STATISTIK & COUNT ──────────────────────────────────────────────────

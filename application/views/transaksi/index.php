@@ -12,7 +12,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <h2>🧾 Data Transaksi Laundry</h2>
         <p>Kelola dan pantau seluruh transaksi laundry beserta status cucian pelanggan.</p>
     </div>
-    <div>
+    <div style="display: flex; gap: 8px;">
+        <a href="<?= base_url('admin/transaksi/export_excel?' . http_build_query($_GET)) ?>" class="btn btn-success" id="btn-export-transaksi-excel">
+            🟢 Ekspor Excel
+        </a>
         <a href="<?= base_url('admin/transaksi/tambah') ?>" class="btn btn-primary" id="btn-tambah-transaksi-index">
             ➕ Tambah Transaksi Baru
         </a>
@@ -118,6 +121,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <th>Jenis Layanan</th>
                     <th>Berat</th>
                     <th>Total Harga</th>
+                    <th style="width: 140px;">Pembayaran</th>
                     <th>Tanggal Masuk</th>
                     <th style="width: 170px;">Ubah Cepat Status</th>
                     <th style="width: 100px; text-align: center;">Tindakan</th>
@@ -132,13 +136,89 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?= htmlspecialchars($t['kode_transaksi']) ?>
                         </code>
                     </td>
-                    <td style="font-weight: 600; color:var(--gray-900);">
+                    <td style="font-weight: 600; color:var(--gray-900); padding-top: 10px; padding-bottom: 10px;">
                         <?= htmlspecialchars($t['nama_pelanggan']) ?>
+                        <?php if (!empty($t['no_hp'])): ?>
+                            <?php
+                            $phone = preg_replace('/[^0-9]/', '', $t['no_hp']);
+                            if (strpos($phone, '0') === 0) {
+                                $phone = '62' . substr($phone, 1);
+                            }
+                            ?>
+                            <br>
+                            <a href="https://wa.me/<?= $phone ?>" target="_blank" style="font-size: .75rem; color: #10b981; text-decoration: underline; font-weight: 500; display: inline-flex; align-items: center; gap: 3px; margin-top: 2px;" title="Hubungi via WhatsApp">
+                                💬 <?= htmlspecialchars($t['no_hp']) ?>
+                            </a>
+                        <?php endif; ?>
+                        <?php if ($t['is_jemput'] == 1): ?>
+                            <br>
+                            <span class="badge badge-<?= $t['status_jemput'] === 'Sudah Dijemput' ? 'selesai' : 'proses' ?>" style="font-size: .65rem; padding: 2px 6px; display: inline-block; margin-top: 4px; font-weight: 600;" title="Alamat: <?= htmlspecialchars($t['alamat_jemput']) ?>">
+                                🚚 <?= htmlspecialchars($t['status_jemput']) ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ($t['is_antar'] == 1): ?>
+                            <br>
+                            <span class="badge badge-<?= $t['status_antar'] === 'Sudah Diantarkan' ? 'selesai' : 'proses' ?>" style="font-size: .65rem; padding: 2px 6px; display: inline-block; margin-top: 4px; font-weight: 600;" title="Alamat: <?= htmlspecialchars($t['alamat_antar']) ?>">
+                                🛵 <?= htmlspecialchars($t['status_antar']) ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (!empty($t['reward_used'])): ?>
+                            <br>
+                            <span style="display: inline-block; margin-top: 4px; font-size: .65rem; color: #1e3a8a; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 6px; font-weight: 600;" title="Points used: <?= $t['poin_used'] ?> pts">
+                                🎁 <?= htmlspecialchars($t['reward_used']) ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (!empty($t['rating'])): ?>
+                            <br>
+                            <span style="display: inline-block; margin-top: 6px; font-size: .72rem; color: #b45309; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px; padding: 3px 8px; font-weight: 500; line-height: 1.3;" title="Review: <?= htmlspecialchars($t['review']) ?>">
+                                ⭐ <?= str_repeat('★', $t['rating']) ?><?= str_repeat('☆', 5 - $t['rating']) ?>
+                                <span style="display: block; color: var(--gray-600); font-weight: 500; font-size: .68rem; margin-top: 2px;">"<?= htmlspecialchars($t['review']) ?>"</span>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (!empty($t['catatan'])): ?>
+                            <br>
+                            <span style="display: inline-block; margin-top: 5px; font-size: .68rem; color: #78350f; background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 3px 6px; font-weight: 500; line-height: 1.3; max-width: 180px; white-space: normal;" title="Catatan Pelanggan">
+                                📝 <strong>Catatan:</strong> <?= htmlspecialchars($t['catatan']) ?>
+                            </span>
+                        <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($t['jenis_layanan']) ?></td>
                     <td><?= number_format($t['berat'], 2) ?> kg</td>
                     <td style="font-weight: 700; color:var(--gray-900);">
                         Rp <?= number_format($t['harga'], 0, ',', '.') ?>
+                    </td>
+                    <td>
+                        <span style="font-size: .7rem; color: var(--gray-500); font-weight: 600; display: block; margin-bottom: 2px;">
+                            <?= htmlspecialchars($t['metode_pembayaran']) ?>
+                        </span>
+                        
+                        <?php
+                        $st = $t['status_pembayaran'];
+                        $bg = '';
+                        if ($st === 'Lunas') {
+                            $bg = '#10b981';
+                        } elseif ($st === 'Menunggu Verifikasi') {
+                            $bg = '#f59e0b';
+                        } else {
+                            $bg = '#ef4444';
+                        }
+                        ?>
+                        <span style="font-size: .72rem; padding: 2px 6px; font-weight: 700; color: white; border-radius: 4px; display: inline-block; background: <?= $bg ?>;">
+                            <?= htmlspecialchars($st) ?>
+                        </span>
+
+                        <?php if ($st !== 'Lunas'): ?>
+                            <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                <?php if ($st === 'Menunggu Verifikasi' && !empty($t['bukti_pembayaran'])): ?>
+                                    <a href="<?= base_url('assets/uploads/bukti_bayar/' . $t['bukti_pembayaran']) ?>" target="_blank" style="font-size: .7rem; font-weight: 600; color: #3b82f6; text-decoration: underline; text-align: center; margin-bottom: 2px;" id="btn-lihat-bukti-<?= $t['id_transaksi'] ?>">
+                                        🖼️ Lihat Bukti
+                                    </a>
+                                <?php endif; ?>
+                                <a href="<?= base_url('admin/transaksi/verifikasi_bayar/' . $t['id_transaksi']) ?>" class="btn btn-primary" style="font-size: .68rem; padding: 2px 6px; background: #10b981; border-color: #10b981; color: white; border-radius: 3px; text-decoration: none; display: inline-block; text-align: center; font-weight: 600; width: 100%;" onclick="return confirm('Apakah Anda yakin ingin mengonfirmasi pembayaran diterima untuk transaksi ini (Lunas)?');" id="btn-verif-<?= $t['id_transaksi'] ?>">
+                                    ✔️ Konfirmasi Bayar
+                                </a>
+                            </div>
+                        <?php endif; ?>
                     </td>
                     <td><?= date('d M Y', strtotime($t['tanggal'])) ?></td>
                     <td>
@@ -152,7 +232,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 class="form-control" 
                                 style="padding: 4px 8px; font-size: .8rem; font-weight: 500; min-width: 120px; border-color: var(--gray-300);" 
                                 onchange="this.form.submit()">
-                                <?php foreach ($status_options as $opt): ?>
+                                <?php foreach ($status_options as $opt): 
+                                    if ($opt === 'Disetrika' && $t['jenis_layanan'] !== 'Cuci + Setrika') {
+                                        continue;
+                                    }
+                                ?>
                                     <option value="<?= $opt ?>" <?= ($t['status'] === $opt) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($opt) ?>
                                     </option>
