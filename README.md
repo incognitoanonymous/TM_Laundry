@@ -119,7 +119,7 @@ Aplikasi ini telah dimodifikasi secara khusus agar selaras dengan **alur kerja n
    - Pelanggan langsung menerima notifikasi badge peringatan di dashboard pribadinya bahwa berat telah disesuaikan dan siap dibayar.
 
 3. **Verifikasi Pembayaran & Proteksi Kunci Bukti Bayar**:
-   - Pelanggan dapat mengunggah bukti transfer QRIS. Setelah Admin memverifikasi bukti tersebut dan mengubah status pembayaran menjadi **Lunas**, pelanggan **dikunci secara otomatis** agar tidak bisa mengunggah ulang/menimpa bukti pembayaran demi menjaga integritas data keuangan toko.
+   - Pelanggan dapat mengunggah bukti transfer cashless (**QRIS, Transfer Bank, atau Virtual Account**). Setelah Admin memverifikasi bukti tersebut dan mengubah status pembayaran menjadi **Lunas**, pelanggan **dikunci secara otomatis** agar tidak bisa mengunggah ulang/menimpa bukti pembayaran demi menjaga integritas data keuangan toko.
 
 4. **Konfirmasi Setoran Uang Fisik (Internal Admin)**:
    - Menyediakan fitur pelacakan setoran uang kasir: apakah uang pembayaran (terutama COD/Tunai yang dipegang kurir) telah disetorkan secara fisik ke laci kasir outlet.

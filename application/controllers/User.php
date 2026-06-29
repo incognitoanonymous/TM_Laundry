@@ -760,7 +760,7 @@ class User extends CI_Controller {
             return;
         }
 
-        if (!in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank'])) {
+        if (!in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank', 'Virtual Account'])) {
             $this->session->set_flashdata('error', 'Transaksi ini tidak mendukung pembayaran non-tunai.');
             redirect('user/detail/' . $id);
             return;
@@ -836,8 +836,8 @@ class User extends CI_Controller {
             return;
         }
 
-        if ($transaksi['status'] !== 'Menunggu' || $transaksi['status_pembayaran'] !== 'Belum Bayar') {
-            $this->session->set_flashdata('error', 'Pesanan yang sedang dikerjakan atau sudah dibayar tidak dapat dibatalkan.');
+        if ($transaksi['status'] !== 'Menunggu' || $transaksi['status_pembayaran'] !== 'Belum Bayar' || $transaksi['status_jemput'] === 'Sudah Dijemput') {
+            $this->session->set_flashdata('error', 'Pesanan tidak dapat dibatalkan secara sepihak karena pakaian sudah dijemput kurir atau sedang diproses. Silakan hubungi Admin via WhatsApp.');
             redirect('user/detail/' . $id);
             return;
         }

@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <p>Detail nota transaksi cucian laundry Anda.</p>
     </div>
     <div style="display: flex; gap: 8px;">
-        <?php if ($transaksi['status'] === 'Menunggu' && $transaksi['status_pembayaran'] === 'Belum Bayar'): ?>
+        <?php if ($transaksi['status'] === 'Menunggu' && $transaksi['status_pembayaran'] === 'Belum Bayar' && $transaksi['status_jemput'] !== 'Sudah Dijemput'): ?>
             <a href="<?= base_url('user/pesan/batalkan/' . $transaksi['id_transaksi']) ?>" class="btn" style="background: var(--danger); color: white; display: inline-flex; align-items: center;" onclick="return confirm('Apakah Anda yakin ingin membatalkan pesanan laundry ini? Poin Anda (jika digunakan) akan dikembalikan.');" id="btn-batalkan-pesanan">
                 ❌ Batalkan Pesanan
             </a>
@@ -244,7 +244,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode('Invoice:'.$transaksi['kode_transaksi'].';Total:'.$transaksi['harga']) ?>" alt="QRIS Code" style="border: 2px solid var(--gray-200); padding: 10px; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                                         <div style="font-size: .75rem; color: var(--gray-400); margin-top: 4px; font-weight: 500;">QRIS DYNAMIC CODE</div>
                                     </div>
-                                <?php else: ?>
+                                <?php elseif ($transaksi['metode_pembayaran'] === 'Transfer Bank'): ?>
                                     <p style="margin-bottom: 12px; font-size: .82rem; color: var(--gray-600);">
                                         Silakan transfer pembayaran ke nomor rekening resmi toko sebesar <strong>Rp <?= number_format($transaksi['harga'], 0, ',', '.') ?></strong>:
                                     </p>
@@ -253,6 +253,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <span style="display: block; margin-top: 6px;">🏦 <strong>Bank:</strong> Bank Central Asia (BCA)</span>
                                         <span style="display: block;">💳 <strong>No. Rekening:</strong> 8010 541 233</span>
                                         <span style="display: block;">👤 <strong>Atas Nama:</strong> CV LaundryKu Mandiri Utama</span>
+                                    </div>
+                                <?php elseif ($transaksi['metode_pembayaran'] === 'Virtual Account'): ?>
+                                    <p style="margin-bottom: 12px; font-size: .82rem; color: var(--gray-600);">
+                                        Silakan lakukan pembayaran ke Virtual Account resmi toko sebesar <strong>Rp <?= number_format($transaksi['harga'], 0, ',', '.') ?></strong>:
+                                    </p>
+                                    <div style="background: #f8fafc; border: 1.5px solid var(--gray-200); padding: 16px; border-radius: 8px; margin: 15px 0; font-size: .85rem; line-height: 1.6;">
+                                        ⚡ <strong>INFORMASI VIRTUAL ACCOUNT (VA):</strong><br>
+                                        <span style="display: block; margin-top: 6px;">🏦 <strong>Bank Mandiri VA:</strong> 88908 123 4567 890</span>
+                                        <span style="display: block;">🏦 <strong>Bank BCA VA:</strong> 3901 0812 3456 789</span>
+                                        <span style="display: block; color: var(--gray-500); font-size: .75rem; margin-top: 4px;">* Kode VA di atas adalah VA Billing CV LaundryKu Utama</span>
                                     </div>
                                 <?php endif; ?>
                                 

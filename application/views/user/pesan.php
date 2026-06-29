@@ -234,6 +234,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <option value="Tunai">Tunai (Bayar di tempat / COD)</option>
                         <option value="QRIS">QRIS (Scan Barcode & Upload Bukti Bayar)</option>
                         <option value="Transfer Bank">Transfer Bank (Kirim ke Rekening Toko & Upload Bukti)</option>
+                        <option value="Virtual Account">Virtual Account (Mandiri / BCA VA & Upload Bukti)</option>
                     </select>
                 </div>
 

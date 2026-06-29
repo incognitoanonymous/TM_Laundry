@@ -195,6 +195,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <option value="Tunai" <?= set_select('metode_pembayaran', 'Tunai', TRUE) ?>>Tunai (COD)</option>
                             <option value="QRIS" <?= set_select('metode_pembayaran', 'QRIS') ?>>QRIS (Non-Tunai)</option>
                             <option value="Transfer Bank" <?= set_select('metode_pembayaran', 'Transfer Bank') ?>>Transfer Bank</option>
+                            <option value="Virtual Account" <?= set_select('metode_pembayaran', 'Virtual Account') ?>>Virtual Account</option>
                         </select>
                         <?php if (form_error('metode_pembayaran')): ?>
                             <span class="error-msg"><?= form_error('metode_pembayaran') ?></span>
