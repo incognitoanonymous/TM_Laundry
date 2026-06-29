@@ -852,6 +852,115 @@ class User extends CI_Controller {
     }
 
     /**
+     * Mengubah metode pembayaran transaksi jika belum lunas/dibatalkan.
+     */
+    public function ganti_metode_pembayaran($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        if ($transaksi['status_pembayaran'] === 'Lunas' || $transaksi['status'] === 'Dibatalkan') {
+            $this->session->set_flashdata('error', 'Metode pembayaran tidak dapat diubah karena transaksi sudah lunas atau dibatalkan.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $metode = $this->input->post('metode_pembayaran', TRUE);
+        $allowed = ['Tunai', 'QRIS', 'Transfer Bank', 'Virtual Account'];
+
+        if (!in_array($metode, $allowed)) {
+            $this->session->set_flashdata('error', 'Metode pembayaran tidak valid.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $this->db->where('id_transaksi', $id);
+        $this->db->update('transaksi', ['metode_pembayaran' => $metode]);
+
+        $this->session->set_flashdata('success', 'Metode pembayaran berhasil diubah menjadi ' . $metode . '.');
+        redirect('user/detail/' . $id);
+    }
+
+    /**
+     * Mengubah jenis layanan transaksi jika status masih Menunggu dan tidak menggunakan promo/reward.
+     */
+    public function ganti_jenis_layanan($id)
+    {
+        is_user();
+
+        $id_user = $this->session->userdata('id_user');
+        $pelanggan = $this->Pelanggan_model->get_by_user($id_user);
+        $transaksi = $this->Transaksi_model->get_by_id($id);
+
+        if (!$transaksi || !$pelanggan || $transaksi['id_pelanggan'] != $pelanggan['id_pelanggan']) {
+            $this->session->set_flashdata('error', 'Transaksi tidak ditemukan.');
+            redirect('user/riwayat');
+            return;
+        }
+
+        // Hanya boleh diubah saat status masih Menunggu
+        if ($transaksi['status'] !== 'Menunggu') {
+            $this->session->set_flashdata('error', 'Jenis layanan tidak dapat diubah karena cucian Anda sudah mulai diproses.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        // Cek jika menggunakan poin reward
+        if (!empty($transaksi['reward_used'])) {
+            $this->session->set_flashdata('error', 'Jenis layanan tidak dapat diubah karena Anda menggunakan promo/poin reward. Silakan batalkan pesanan untuk refund poin, kemudian buat pesanan baru.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        $jenis = $this->input->post('jenis_layanan', TRUE);
+        $allowed = ['Cuci Reguler', 'Cuci Express', 'Cuci + Setrika'];
+
+        if (!in_array($jenis, $allowed)) {
+            $this->session->set_flashdata('error', 'Jenis layanan tidak valid.');
+            redirect('user/detail/' . $id);
+            return;
+        }
+
+        // Hitung harga baru
+        $tarif = 0;
+        switch ($jenis) {
+            case 'Cuci Reguler':
+                $tarif = 7000;
+                break;
+            case 'Cuci Express':
+                $tarif = 10000;
+                break;
+            case 'Cuci + Setrika':
+                $tarif = 12000;
+                break;
+        }
+
+        $new_harga = ($transaksi['berat'] * $tarif) + $transaksi['ongkir_jemput'] + $transaksi['ongkir_antar'];
+
+        $update = [
+            'jenis_layanan' => $jenis,
+            'harga' => $new_harga
+        ];
+
+        if ($this->Transaksi_model->update($id, $update)) {
+            $this->session->set_flashdata('success', 'Jenis layanan berhasil diubah menjadi ' . $jenis . ' dan tagihan disesuaikan.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memperbarui jenis layanan.');
+        }
+
+        redirect('user/detail/' . $id);
+    }
+
+    /**
      * Menghitung jarak garis lurus antara dua koordinat (Haversine formula).
      */
     private function _calculate_distance($lat1, $lon1, $lat2, $lon2)

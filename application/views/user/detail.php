@@ -124,7 +124,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </thead>
                 <tbody>
                     <tr style="border-bottom: 1px solid var(--gray-100);">
-                        <td style="padding: 14px; font-weight: 600; color: var(--gray-800);"><?= htmlspecialchars($transaksi['jenis_layanan']) ?></td>
+                        <td style="padding: 14px; font-weight: 600; color: var(--gray-800);">
+                            <?= htmlspecialchars($transaksi['jenis_layanan']) ?>
+                            
+                            <?php if ($transaksi['status'] === 'Menunggu' && empty($transaksi['reward_used'])): ?>
+                                <!-- Form ganti jenis layanan -->
+                                <form action="<?= base_url('user/ganti_jenis_layanan/' . $transaksi['id_transaksi']) ?>" method="post" style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                                    <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                                    <select name="jenis_layanan" class="form-control" style="font-size: .72rem; padding: 3px 6px; height: auto; max-width: 180px; border-color: var(--gray-300);" required>
+                                        <option value="Cuci Reguler" <?= $transaksi['jenis_layanan'] === 'Cuci Reguler' ? 'selected' : '' ?>>Cuci Reguler</option>
+                                        <option value="Cuci Express" <?= $transaksi['jenis_layanan'] === 'Cuci Express' ? 'selected' : '' ?>>Cuci Express</option>
+                                        <option value="Cuci + Setrika" <?= $transaksi['jenis_layanan'] === 'Cuci + Setrika' ? 'selected' : '' ?>>Cuci + Setrika</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: .68rem; font-weight: 600; cursor: pointer; background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: 4px;">
+                                        🔄 Ubah
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
                         <td style="padding: 14px; text-align: right; color: var(--gray-600);">
                             <?php
                             $tarif = 0;
@@ -209,7 +226,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div style="font-size: .85rem; color: var(--gray-800); line-height: 1.6;">
                 <div style="margin-bottom: 8px;">
                     <span style="color: var(--gray-500); display: block; font-size: .75rem; font-weight: 600;">METODE PEMBAYARAN</span>
-                    <strong style="font-size: 1rem; color: var(--gray-800);"><?= htmlspecialchars($transaksi['metode_pembayaran']) ?></strong>
+                    <strong style="font-size: 1rem; color: var(--gray-800); display: block; margin-bottom: 4px;"><?= htmlspecialchars($transaksi['metode_pembayaran']) ?></strong>
+                    
+                    <?php if ($transaksi['status'] !== 'Dibatalkan' && $transaksi['status_pembayaran'] !== 'Lunas'): ?>
+                        <!-- Form ganti metode pembayaran -->
+                        <form action="<?= base_url('user/ganti_metode_pembayaran/' . $transaksi['id_transaksi']) ?>" method="post" style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                            <select name="metode_pembayaran" class="form-control" style="font-size: .72rem; padding: 3px 6px; height: auto; max-width: 160px; border-color: var(--gray-300);" required>
+                                <option value="Tunai" <?= $transaksi['metode_pembayaran'] === 'Tunai' ? 'selected' : '' ?>>Tunai (COD)</option>
+                                <option value="QRIS" <?= $transaksi['metode_pembayaran'] === 'QRIS' ? 'selected' : '' ?>>QRIS (Scan QR)</option>
+                                <option value="Transfer Bank" <?= $transaksi['metode_pembayaran'] === 'Transfer Bank' ? 'selected' : '' ?>>Transfer Bank</option>
+                                <option value="Virtual Account" <?= $transaksi['metode_pembayaran'] === 'Virtual Account' ? 'selected' : '' ?>>Virtual Account</option>
+                            </select>
+                            <button type="submit" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: .68rem; font-weight: 600; cursor: pointer; background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: 4px;">
+                                🔄 Ubah
+                            </button>
+                        </form>
+                    <?php endif; ?>
                 </div>
 
                 <div style="margin-bottom: 12px;">
