@@ -49,7 +49,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <select id="status" name="status" class="form-control">
                         <option value="">-- Semua Status --</option>
                         <?php 
-                        $status_options = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil'];
+                        $status_options = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil', 'Dibatalkan'];
                         foreach ($status_options as $opt):
                         ?>
                             <option value="<?= $opt ?>" <?= ($status_filter === $opt) ? 'selected' : '' ?>>

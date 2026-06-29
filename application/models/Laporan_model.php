@@ -45,7 +45,7 @@ class Laporan_model extends CI_Model {
     public function get_statistik($tanggal = NULL, $bulan = NULL, $tahun = NULL, $tgl_mulai = NULL, $tgl_akhir = NULL)
     {
         // 1. Total Transaksi & Pendapatan
-        $this->db->select('COUNT(id_transaksi) AS total_transaksi, SUM(harga) AS total_pendapatan');
+        $this->db->select("COUNT(id_transaksi) AS total_transaksi, SUM(CASE WHEN status = 'Dibatalkan' AND status_pembayaran != 'Lunas' THEN 0 ELSE harga END) AS total_pendapatan");
         $this->db->from('transaksi');
         $this->_apply_filter($tanggal, $bulan, $tahun, $tgl_mulai, $tgl_akhir);
         $res = $this->db->get()->row_array();

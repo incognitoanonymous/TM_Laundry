@@ -75,7 +75,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="status">🔄 Status Cucian</label>
                         <select name="status" id="status" class="form-control" required>
                             <?php 
-                            $status_options = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil'];
+                            $status_options = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil', 'Dibatalkan'];
                             foreach ($status_options as $opt):
                                 if ($opt === 'Disetrika' && $transaksi['jenis_layanan'] !== 'Cuci + Setrika') {
                                     continue;

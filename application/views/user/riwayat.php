@@ -82,6 +82,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             $badge_class = 'selesai';
                         } elseif ($status === 'Diambil') {
                             $badge_class = 'diambil';
+                        } elseif ($status === 'Dibatalkan') {
+                            $badge_class = 'batal';
                         }
                         ?>
                         <span class="badge badge-<?= $badge_class ?>">

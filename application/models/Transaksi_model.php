@@ -283,6 +283,40 @@ class Transaksi_model extends CI_Model {
         return $this->db->update($this->table, $data);
     }
 
+    /**
+     * Membatalkan transaksi: Mengubah status menjadi 'Dibatalkan', me-refund poin, 
+     * dan menyetel poin_earned & poin_used menjadi 0.
+     */
+    public function batalkan_transaksi($id)
+    {
+        $old = $this->db->where('id_transaksi', $id)->get($this->table)->row_array();
+        if (!$old) {
+            return false;
+        }
+
+        $this->db->trans_start();
+
+        // Kembalikan poin pelanggan (Refund poin)
+        // Saldo poin baru = poin - poin_earned + poin_used
+        $diff = $old['poin_used'] - $old['poin_earned'];
+        if ($diff != 0) {
+            $this->db->set('poin', "poin + ({$diff})", FALSE);
+            $this->db->where('id_pelanggan', $old['id_pelanggan']);
+            $this->db->update('pelanggan');
+        }
+
+        // Set status 'Dibatalkan', poin_earned = 0, poin_used = 0
+        $this->db->where('id_transaksi', $id);
+        $this->db->update($this->table, [
+            'status' => 'Dibatalkan',
+            'poin_earned' => 0,
+            'poin_used' => 0
+        ]);
+
+        $this->db->trans_complete();
+        return $this->db->trans_status() !== FALSE;
+    }
+
     // ─── DELETE ────────────────────────────────────────────────────────────
 
     /**

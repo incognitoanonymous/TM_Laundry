@@ -842,8 +842,8 @@ class User extends CI_Controller {
             return;
         }
 
-        if ($this->Transaksi_model->delete($id)) {
-            $this->session->set_flashdata('success', 'Pesanan laundry #' . $transaksi['kode_transaksi'] . ' berhasil dibatalkan dan poin Anda (jika ada) telah dikembalikan.');
+        if ($this->Transaksi_model->batalkan_transaksi($id)) {
+            $this->session->set_flashdata('success', 'Pesanan laundry #' . $transaksi['kode_transaksi'] . ' berhasil dibatalkan. Histori tetap tersimpan dan poin Anda (jika ada) telah dikembalikan.');
         } else {
             $this->session->set_flashdata('error', 'Gagal membatalkan pesanan.');
         }

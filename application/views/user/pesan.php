@@ -251,7 +251,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <label style="display: flex; align-items: start; gap: 10px; font-weight: 500; cursor: pointer; font-size: .82rem; line-height: 1.5; color: #92400e;">
                     <input type="checkbox" id="setuju_ketentuan_berat" name="setuju_ketentuan_berat" value="1" required style="width: 18px; height: 18px; margin-top: 2px;">
                     <span>
-                        <strong>⚠️ Persetujuan Penyesuaian Berat:</strong> Saya setuju bahwa berat yang saya masukkan adalah estimasi awal. Berat pakaian akan ditimbang kembali secara akurat oleh Admin, dan saya setuju untuk membayar kekurangan biaya atau menerima pengembalian (refund) jika berat riil pakaian berbeda.
+                        <strong>⚠️ Persetujuan Ketentuan & Pembatalan:</strong> Saya setuju bahwa berat yang saya masukkan adalah estimasi awal dan akan ditimbang kembali secara akurat oleh Admin (saya bersedia membayar kekurangan atau menerima refund). Saya juga setuju bahwa pembatalan gratis hanya berlaku **sebelum kurir menjemput pakaian**. Jika dibatalkan setelah penjemputan atau saat cucian diproses, saya bersedia dikenakan denda/biaya pembatalan operasional.
                     </span>
                 </label>
                 <?php if (form_error('setuju_ketentuan_berat')): ?>

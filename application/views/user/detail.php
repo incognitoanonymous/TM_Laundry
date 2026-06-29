@@ -223,7 +223,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </span>
                 </div>
 
-                <?php if (in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank'])): ?>
+                <?php if ($transaksi['status'] === 'Dibatalkan'): ?>
+                    <div style="border-top: 1px dashed var(--gray-300); padding-top: 14px; margin-top: 14px;">
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 14px; border-radius: var(--radius); font-size: .82rem; line-height: 1.5;">
+                            <strong>❌ Pesanan Dibatalkan</strong><br>
+                            Pesanan laundry ini telah dibatalkan. Histori transaksi tetap tersimpan untuk keperluan pembukuan. Poin Anda (jika digunakan) telah dikembalikan ke akun Anda.
+                        </div>
+                    </div>
+                <?php elseif (in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank', 'Virtual Account'])): ?>
                     <?php if ($status_bayar === 'Belum Bayar'): ?>
                         <?php if ($transaksi['status'] === 'Menunggu'): ?>
                             <div style="border-top: 1px dashed var(--gray-300); padding-top: 14px; margin-top: 14px;">

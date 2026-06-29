@@ -960,63 +960,71 @@
                     </div>
                     <?php endif; ?>
 
-                    <!-- TIMELINE -->
-                    <div class="result-timeline">
-                        <h4>Tahapan Operasional Cucian</h4>
-                        <div class="timeline-container">
-                            <?php 
-                            $status_flow = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil'];
-                            $current_index = array_search($t['status'], $status_flow);
-                            if ($current_index === FALSE) $current_index = 0;
-
-                            foreach ($status_flow as $idx => $step):
-                                $is_bypassed = ($step === 'Disetrika' && $t['jenis_layanan'] !== 'Cuci + Setrika');
-                                if ($is_bypassed) {
-                                    $is_passed = false;
-                                    $is_current = false;
-                                    $step_class = 'bypassed';
-                                } else {
-                                    $is_passed = $idx <= $current_index;
-                                    $is_current = $idx === $current_index;
-                                    $step_class = $is_current ? 'active' : ($is_passed ? 'passed' : '');
-                                }
-                            ?>
-                                <div class="timeline-step <?= $step_class ?>" <?= $is_bypassed ? 'style="opacity: 0.55;"' : '' ?>>
-                                    <div class="timeline-circle" <?= $is_bypassed ? 'style="background: var(--danger); color: var(--white); border-color: var(--danger);"' : '' ?>>
-                                        <?= $is_bypassed ? '✗' : ($is_passed ? '✓' : $idx + 1) ?>
-                                    </div>
-                                    <span class="timeline-label" <?= $is_bypassed ? 'style="color: var(--danger);"' : '' ?>>
-                                        <?= htmlspecialchars($step) ?>
-                                        <?php if ($is_bypassed): ?>
-                                            <span class="current-badge" style="background: var(--danger); color: var(--white);">Tidak Berlaku</span>
-                                        <?php endif; ?>
-                                        <?= $is_current ? '<span class="current-badge">Sedang diproses</span>' : '' ?>
-                                    </span>
-                                </div>
-                            <?php endforeach; ?>
+                    <?php if ($t['status'] === 'Dibatalkan'): ?>
+                        <div style="background: #fef2f2; border: 1.5px solid #fecaca; padding: 18px 24px; border-radius: var(--radius); text-align: center; color: #991b1b; margin-top: 24px;">
+                            <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">❌</span>
+                            <strong style="font-size: 1.15rem; display: block; margin-bottom: 4px;">Pesanan Laundry Dibatalkan</strong>
+                            <p style="font-size: .85rem; margin: 0; line-height: 1.5;">Pesanan ini telah dibatalkan secara resmi. Silakan hubungi kami via WhatsApp jika Anda memiliki pertanyaan atau butuh bantuan lebih lanjut.</p>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <!-- TIMELINE -->
+                        <div class="result-timeline">
+                            <h4>Tahapan Operasional Cucian</h4>
+                            <div class="timeline-container">
+                                <?php 
+                                $status_flow = ['Menunggu', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai', 'Diambil'];
+                                $current_index = array_search($t['status'], $status_flow);
+                                if ($current_index === FALSE) $current_index = 0;
 
-                    <!-- ALERT NOTIFIKASI -->
-                    <div class="status-alert">
-                        <?php if ($t['status'] === 'Menunggu'): ?>
-                            <div class="alert alert-info">
-                                ⏳ Cucian Anda telah terdaftar dan sedang dalam **antrean antrean** masuk mesin cuci.
+                                foreach ($status_flow as $idx => $step):
+                                    $is_bypassed = ($step === 'Disetrika' && $t['jenis_layanan'] !== 'Cuci + Setrika');
+                                    if ($is_bypassed) {
+                                        $is_passed = false;
+                                        $is_current = false;
+                                        $step_class = 'bypassed';
+                                    } else {
+                                        $is_passed = $idx <= $current_index;
+                                        $is_current = $idx === $current_index;
+                                        $step_class = $is_current ? 'active' : ($is_passed ? 'passed' : '');
+                                    }
+                                ?>
+                                    <div class="timeline-step <?= $step_class ?>" <?= $is_bypassed ? 'style="opacity: 0.55;"' : '' ?>>
+                                        <div class="timeline-circle" <?= $is_bypassed ? 'style="background: var(--danger); color: var(--white); border-color: var(--danger);"' : '' ?>>
+                                            <?= $is_bypassed ? '✗' : ($is_passed ? '✓' : $idx + 1) ?>
+                                        </div>
+                                        <span class="timeline-label" <?= $is_bypassed ? 'style="color: var(--danger);"' : '' ?>>
+                                            <?= htmlspecialchars($step) ?>
+                                            <?php if ($is_bypassed): ?>
+                                                <span class="current-badge" style="background: var(--danger); color: var(--white);">Tidak Berlaku</span>
+                                            <?php endif; ?>
+                                            <?= $is_current ? '<span class="current-badge">Sedang diproses</span>' : '' ?>
+                                        </span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                        <?php elseif (in_array($t['status'], ['Dicuci', 'Dikeringkan', 'Disetrika'])): ?>
-                            <div class="alert alert-warning">
-                                ⚙️ Pakaian Anda **sedang dikerjakan** oleh staf kami di ruang cuci/gosok.
-                            </div>
-                        <?php elseif ($t['status'] === 'Selesai'): ?>
-                            <div class="alert alert-success">
-                                🎉 Hore! Cucian Anda **sudah bersih, rapi, dan siap diambil** di toko kami.
-                            </div>
-                        <?php else: ?>
-                            <div class="alert alert-info" style="background-color: var(--gray-100); color: var(--gray-600); border-color: var(--gray-300);">
-                                📦 Cucian **sudah diserahkan** ke pelanggan. Terima kasih telah mencuci di LaundryKu!
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+
+                        <!-- ALERT NOTIFIKASI -->
+                        <div class="status-alert">
+                            <?php if ($t['status'] === 'Menunggu'): ?>
+                                <div class="alert alert-info">
+                                    ⏳ Cucian Anda telah terdaftar dan sedang dalam **antrean** masuk mesin cuci.
+                                </div>
+                            <?php elseif (in_array($t['status'], ['Dicuci', 'Dikeringkan', 'Disetrika'])): ?>
+                                <div class="alert alert-warning">
+                                    ⚙️ Pakaian Anda **sedang dikerjakan** oleh staf kami di ruang cuci/gosok.
+                                </div>
+                            <?php elseif ($t['status'] === 'Selesai'): ?>
+                                <div class="alert alert-success">
+                                    🎉 Hore! Cucian Anda **sudah bersih, rapi, dan siap diambil** di toko kami.
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-info" style="background-color: var(--gray-100); color: var(--gray-600); border-color: var(--gray-300);">
+                                    📦 Cucian **sudah diserahkan** ke pelanggan. Terima kasih telah mencuci di LaundryKu!
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
 
                 </div>
             <?php endif; ?>

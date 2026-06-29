@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `transaksi` (
   `berat`          DECIMAL(5,2)  NOT NULL,
   `berat_estimasi` DECIMAL(5,2)  DEFAULT NULL,
   `harga`          DECIMAL(12,2) NOT NULL,
-  `status`         ENUM('Menunggu','Dicuci','Dikeringkan','Disetrika','Selesai','Diambil') NOT NULL DEFAULT 'Menunggu',
+  `status`         ENUM('Menunggu','Dicuci','Dikeringkan','Disetrika','Selesai','Diambil','Dibatalkan') NOT NULL DEFAULT 'Menunggu',
   `tanggal`        DATE          NOT NULL,
   `is_jemput`      TINYINT(1)    NOT NULL DEFAULT 0,
   `alamat_jemput`  TEXT          DEFAULT NULL,

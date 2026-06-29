@@ -93,11 +93,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             foreach ($transaksi as $t): 
                 $laundry_cost = $t['harga'] - $t['ongkir_jemput'] - $t['ongkir_antar'];
+                
+                // Jika transaksi dibatalkan dan tidak lunas, abaikan dari penjumlahan omzet keuangan
+                $is_cancelled_unpaid = ($t['status'] === 'Dibatalkan' && $t['status_pembayaran'] !== 'Lunas');
+                
                 $total_berat += $t['berat'];
-                $total_harga += $t['harga'];
-                $total_laundry += $laundry_cost;
-                $total_jemput += $t['ongkir_jemput'];
-                $total_antar += $t['ongkir_antar'];
+                if (!$is_cancelled_unpaid) {
+                    $total_harga += $t['harga'];
+                    $total_laundry += $laundry_cost;
+                    $total_jemput += $t['ongkir_jemput'];
+                    $total_antar += $t['ongkir_antar'];
+                }
             ?>
                 <tr>
                     <td class="text-center"><?= $no++ ?></td>
