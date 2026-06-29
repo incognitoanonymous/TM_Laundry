@@ -233,6 +233,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <select name="metode_pembayaran" id="metode_pembayaran" class="form-control" required style="max-width: 320px;">
                         <option value="Tunai">Tunai (Bayar di tempat / COD)</option>
                         <option value="QRIS">QRIS (Scan Barcode & Upload Bukti Bayar)</option>
+                        <option value="Transfer Bank">Transfer Bank (Kirim ke Rekening Toko & Upload Bukti)</option>
                     </select>
                 </div>
 

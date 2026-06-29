@@ -223,26 +223,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </span>
                 </div>
 
-                <?php if ($transaksi['metode_pembayaran'] === 'QRIS'): ?>
+                <?php if (in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank'])): ?>
                     <?php if ($status_bayar === 'Belum Bayar'): ?>
                         <?php if ($transaksi['status'] === 'Menunggu'): ?>
                             <div style="border-top: 1px dashed var(--gray-300); padding-top: 14px; margin-top: 14px;">
                                 <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 14px; border-radius: var(--radius); font-size: .82rem; line-height: 1.5;">
                                     <strong>⏳ Menunggu Penimbangan Pakaian</strong><br>
-                                    Pembayaran QRIS belum diaktifkan karena pakaian Anda masih dalam proses penerimaan/penjemputan untuk ditimbang oleh Admin. 
+                                    Pembayaran belum diaktifkan karena pakaian Anda masih dalam proses penerimaan/penjemputan untuk ditimbang oleh Admin. 
                                     <br><br>
-                                    Setelah pakaian ditimbang secara akurat dan status cucian mulai diproses (Dicuci), kode QRIS dan form pembayaran akan muncul di sini dengan nominal tagihan yang sudah disesuaikan. Hal ini untuk mencegah kelebihan atau kekurangan pembayaran.
+                                    Setelah pakaian ditimbang secara akurat dan status cucian mulai diproses (Dicuci), info pembayaran (rekening/QRIS) dan form upload bukti bayar akan muncul di sini dengan nominal tagihan yang sudah disesuaikan. Hal ini untuk mencegah kelebihan atau kekurangan pembayaran.
                                 </div>
                             </div>
                         <?php else: ?>
                             <div style="border-top: 1px dashed var(--gray-300); padding-top: 14px; margin-top: 14px;">
-                                <p style="margin-bottom: 12px; font-size: .82rem; color: var(--gray-600);">
-                                    Silakan scan kode QRIS di bawah ini menggunakan aplikasi pembayaran e-wallet Anda (Gopay, OVO, Dana, LinkAja, Mobile Banking) sebesar <strong>Rp <?= number_format($transaksi['harga'], 0, ',', '.') ?></strong>:
-                                </p>
-                                <div style="text-align: center; margin: 15px 0;">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode('Invoice:'.$transaksi['kode_transaksi'].';Total:'.$transaksi['harga']) ?>" alt="QRIS Code" style="border: 2px solid var(--gray-200); padding: 10px; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                                    <div style="font-size: .75rem; color: var(--gray-400); margin-top: 4px; font-weight: 500;">QRIS DYNAMIC CODE</div>
-                                </div>
+                                <?php if ($transaksi['metode_pembayaran'] === 'QRIS'): ?>
+                                    <p style="margin-bottom: 12px; font-size: .82rem; color: var(--gray-600);">
+                                        Silakan scan kode QRIS di bawah ini menggunakan aplikasi pembayaran e-wallet Anda (Gopay, OVO, Dana, LinkAja, Mobile Banking) sebesar <strong>Rp <?= number_format($transaksi['harga'], 0, ',', '.') ?></strong>:
+                                    </p>
+                                    <div style="text-align: center; margin: 15px 0;">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode('Invoice:'.$transaksi['kode_transaksi'].';Total:'.$transaksi['harga']) ?>" alt="QRIS Code" style="border: 2px solid var(--gray-200); padding: 10px; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                        <div style="font-size: .75rem; color: var(--gray-400); margin-top: 4px; font-weight: 500;">QRIS DYNAMIC CODE</div>
+                                    </div>
+                                <?php else: ?>
+                                    <p style="margin-bottom: 12px; font-size: .82rem; color: var(--gray-600);">
+                                        Silakan transfer pembayaran ke nomor rekening resmi toko sebesar <strong>Rp <?= number_format($transaksi['harga'], 0, ',', '.') ?></strong>:
+                                    </p>
+                                    <div style="background: #f8fafc; border: 1.5px solid var(--gray-200); padding: 16px; border-radius: 8px; margin: 15px 0; font-size: .85rem; line-height: 1.6;">
+                                        🏦 <strong>INFORMASI REKENING TRANSFER:</strong><br>
+                                        <span style="display: block; margin-top: 6px;">🏦 <strong>Bank:</strong> Bank Central Asia (BCA)</span>
+                                        <span style="display: block;">💳 <strong>No. Rekening:</strong> 8010 541 233</span>
+                                        <span style="display: block;">👤 <strong>Atas Nama:</strong> CV LaundryKu Mandiri Utama</span>
+                                    </div>
+                                <?php endif; ?>
                                 
                                 <!-- Form Upload Bukti -->
                                 <form action="<?= base_url('user/upload_bukti/' . $transaksi['id_transaksi']) ?>" method="post" enctype="multipart/form-data" style="background: var(--gray-50); border: 1.5px dashed var(--gray-300); padding: 16px; border-radius: 8px;">

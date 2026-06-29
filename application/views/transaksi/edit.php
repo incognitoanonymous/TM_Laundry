@@ -215,6 +215,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <select name="metode_pembayaran" id="metode_pembayaran" class="form-control" required>
                             <option value="Tunai" <?= set_select('metode_pembayaran', 'Tunai', $transaksi['metode_pembayaran'] === 'Tunai') ?>>Tunai (COD)</option>
                             <option value="QRIS" <?= set_select('metode_pembayaran', 'QRIS', $transaksi['metode_pembayaran'] === 'QRIS') ?>>QRIS (Non-Tunai)</option>
+                            <option value="Transfer Bank" <?= set_select('metode_pembayaran', 'Transfer Bank', $transaksi['metode_pembayaran'] === 'Transfer Bank') ?>>Transfer Bank</option>
                         </select>
                         <?php if (form_error('metode_pembayaran')): ?>
                             <span class="error-msg"><?= form_error('metode_pembayaran') ?></span>

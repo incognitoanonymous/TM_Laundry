@@ -760,8 +760,8 @@ class User extends CI_Controller {
             return;
         }
 
-        if ($transaksi['metode_pembayaran'] !== 'QRIS') {
-            $this->session->set_flashdata('error', 'Transaksi ini tidak menggunakan pembayaran QRIS.');
+        if (!in_array($transaksi['metode_pembayaran'], ['QRIS', 'Transfer Bank'])) {
+            $this->session->set_flashdata('error', 'Transaksi ini tidak mendukung pembayaran non-tunai.');
             redirect('user/detail/' . $id);
             return;
         }
