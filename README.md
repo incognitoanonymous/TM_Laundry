@@ -1,7 +1,7 @@
 # 🧺 LaundryKu — Sistem Informasi Manajemen Laundry
 
 Aplikasi web manajemen laundry modern berbasis **PHP + CodeIgniter 3 + MySQL**.
-Aplikasi ini sudah dioptimalkan dan dikonfigurasi secara dinamis sehingga siap langsung dijalankan di **Local Host (XAMPP/Laragon)** maupun **GitHub Codespaces** tanpa perlu mengedit file konfigurasi `base_url` secara manual!
+Aplikasi ini sudah dioptimalkan dan dikonfigurasi secara dinamis sehingga siap langsung dijalankan di **Local Host (XAMPP/Laragon)**!
 
 ---
 
@@ -27,9 +27,7 @@ Aplikasi ini sudah dioptimalkan dan dikonfigurasi secara dinamis sehingga siap l
 
 ---
 
-## 🚀 Panduan Instalasi & Menjalankan Aplikasi
-
-### 💻 Opsi A: Jalankan di Local Host (XAMPP / Laragon)
+## 🚀 Panduan Instalasi & Menjalankan Aplikasi di Localhost
 
 1. **Persiapan Folder**:
    - Salin seluruh folder project `laundry` ini ke direktori web server Anda:
@@ -53,54 +51,6 @@ Aplikasi ini sudah dioptimalkan dan dikonfigurasi secara dinamis sehingga siap l
 
 5. **Jalankan Aplikasi**:
    - Buka browser Anda dan akses: **`http://localhost/laundry/`**
-
----
-
-### ☁️ Opsi B: Jalankan di GitHub Codespaces (Cloud)
-
-Jika Anda membuka proyek ini melalui **GitHub Codespaces**, ikuti perintah-perintah terminal berikut untuk menginstal dan menyalakan aplikasi:
-
-#### 1. Instal & Aktifkan MySQL Server di Codespaces
-Jalankan perintah ini satu per satu di terminal Codespace Anda untuk memasang dan mengaktifkan database MySQL:
-```bash
-# Update list paket
-sudo apt-get update
-
-# Install MySQL Server
-sudo apt-get install -y mysql-server
-
-# Nyalakan service MySQL
-sudo service mysql start
-```
-
-#### 2. Atur Hak Akses Database (Penting!)
-Agar CodeIgniter dapat terhubung ke MySQL secara otomatis tanpa kendala *permission socket*, ubah autentikasi user root menjadi akses TCP lokal (tanpa password):
-```bash
-sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
-```
-
-#### 3. Buat Database & Import File SQL
-```bash
-sudo mysql -e "CREATE DATABASE db_laundry;"
-sudo mysql db_laundry < db_laundry.sql
-```
-
-#### 4. Instal Ekstensi PHP-MySQL
-Sistem Ubuntu di Codespaces memerlukan ekstensi PHP-MySQL agar program dapat berkomunikasi dengan database. Jalankan perintah instalasi berikut:
-```bash
-sudo apt-get install -y php8.3 php8.3-mysql php8.3-xml php8.3-mbstring php8.3-curl
-```
-
-#### 5. Jalankan Web Server PHP
-Jalankan server built-in PHP dengan basis PHP 8.3:
-```bash
-php8.3 -S 0.0.0.0:8080
-```
-
-#### 6. Buka Aplikasi di Browser
-- VS Code di browser Anda akan menampilkan notifikasi pop-up di pojok kanan bawah bertuliskan **"Your application running on port 8080 is available."**
-- Klik tombol **Open in Browser** pada pop-up tersebut.
-- Atau, Anda bisa pergi ke tab **Ports** di bagian bawah samping terminal, lalu klik ikon 🌐 (bola dunia) pada baris port `8080` untuk langsung membukanya di tab browser baru.
 
 ---
 
